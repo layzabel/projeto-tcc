@@ -1,21 +1,19 @@
 <!--
 Sync Impact Report
-- Version change: (template sem versão) → 1.0.0
-- Princípios definidos (primeira ratificação; antes havia apenas placeholders):
-  - [PRINCIPLE_1_NAME] → I. Proteção e Privacidade da Criança (LGPD art. 14)
-  - [PRINCIPLE_2_NAME] → II. Dados Exclusivamente no Aparelho
-  - [PRINCIPLE_3_NAME] → III. Limite Diário Alinhado à SBP
-  - [PRINCIPLE_4_NAME] → IV. Interface Infantil sem Leitura e sem Manipulação
-  - [PRINCIPLE_5_NAME] → V. Qualidade de Código Mensurável (SonarQube)
-  - (novo) VI. Rastreabilidade do Desenvolvimento com IA
-- Seções adicionadas:
-  - Restrições Técnicas e de Conformidade (antes [SECTION_2_NAME])
-  - Fluxo de Desenvolvimento e Portões de Qualidade (antes [SECTION_3_NAME])
-  - Governança preenchida
+- Version change: 1.0.0 → 1.0.1 (PATCH — esclarecimento, nenhum princípio alterado)
+- Princípios modificados (título inalterado):
+  - VI. Rastreabilidade do Desenvolvimento com IA:
+    - definido o termo "etapa de correção" (correcao-N), que agrupa rodadas de correção;
+    - snapshot SonarQube passa a ser explicitamente exigido ao final de implement e de cada
+      etapa correcao-N, e não a cada prompt de correção;
+    - admitida linha agregada em metricas-ia.md quando a fonte não separa etapas da mesma
+      sessão, identificando as etapas incluídas e sem rateio/estimativa.
+- Seções adicionadas: nenhuma
 - Seções removidas: nenhuma
 - Templates dependentes: não modificados (leem a constituição em tempo de execução).
-- TODOs adiados: nenhum placeholder pendente. Data de ratificação = data desta
-  primeira adoção (2026-10-28).
+- Impacto nas features em andamento: metricas-ia.md existentes podem manter linhas agregadas
+  já registradas, desde que identifiquem as etapas incluídas.
+- TODOs adiados: nenhum.
 -->
 
 # Constituição — Controle Parental de Tempo de Tela (2 a 5 anos)
@@ -127,13 +125,19 @@ objetivas e reproduzíveis não há base de comparação.
   (leitura/escrita), custo em USD, número de prompts do usuário e número de rodadas de correção.
 - **Prompt** é cada mensagem enviada pelo usuário ao agente. **Rodada de correção** é cada
   prompt que pede ao agente para corrigir defeito, erro de build/teste, violação desta
-  constituição ou apontamento do SonarQube em artefato já gerado.
+  constituição ou apontamento do SonarQube em artefato já gerado. **Etapa de correção**
+  (`correcao-N`) é a etapa do Spec Kit, registrada como uma linha própria, que agrupa uma ou mais
+  rodadas de correção.
 - Tokens e custo DEVEM vir de fonte verificável (saída de `/cost` do Claude Code, painel de uso
   do provedor ou transcrições da sessão). Valores estimados DEVEM ser marcados como "estimado",
   com o método de estimativa indicado. É PROIBIDO inventar ou arredondar sem indicação.
-- Ao final de `implement` e de cada rodada de correção, o agente DEVE anexar ao mesmo arquivo um
-  snapshot das métricas SonarQube do Princípio V, permitindo correlacionar esforço de IA e
-  qualidade.
+- Quando a fonte de dados não separar etapas que ocorreram na mesma sessão, é admitida uma única
+  linha agregada, que DEVE identificar explicitamente as etapas incluídas (por exemplo,
+  "plan + tasks"). É PROIBIDO ratear ou estimar os valores entre as etapas agregadas.
+- Ao final de `implement` e ao final de cada etapa de correção (`correcao-N`), o agente DEVE
+  anexar ao mesmo arquivo um snapshot das métricas SonarQube do Princípio V, permitindo
+  correlacionar esforço de IA e qualidade. O snapshot NÃO é exigido a cada rodada de correção
+  (prompt) dentro de uma etapa.
 - Um consolidado do projeto DEVE ser mantido em `docs/metricas/consolidado.md` somando as
   métricas de todas as features.
 
@@ -181,4 +185,4 @@ objetivas e reproduzíveis não há base de comparação.
   justificativa registrada.
 - A conformidade DEVE ser revisada ao fim de cada feature, junto com a consolidação das métricas.
 
-**Version**: 1.0.0 | **Ratified**: 2026-10-28 | **Last Amended**: 2026-10-28
+**Version**: 1.0.1 | **Ratified**: 2026-10-28 | **Last Amended**: 2026-11-01
