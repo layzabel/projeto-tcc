@@ -19,7 +19,8 @@ ou como valores transitórios lidos de ferramentas externas (ccusage, transcriç
   reprovado; `rodadas_correcao` ≥ 1; termina com medição SonarQube (FR-011c).
 - **`registro`**: sessão de registro (FR-011b); custo de medição, fora dos totais das etapas;
   `rodadas_correcao` = 0.
-- Desvio (sessão com mais de uma etapa por engano) → linha agregada com `observacao` preenchida.
+- Desvio (sessão com mais de uma etapa por engano) → linha agregada com `observacao` preenchida;
+  etapa agregada sem `tipo = retroativo` e com `observacao` vazia é recusada.
 
 ## Medição de IA (linha da tabela "Medições de IA")
 

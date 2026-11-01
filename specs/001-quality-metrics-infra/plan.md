@@ -48,8 +48,8 @@ Bash); app publicado como site estático (`out/`) para navegadores modernos.
 **Project Type**: Aplicação web estática (frontend único) + scripts de automação de
 desenvolvimento.
 
-**Performance Goals**: `npm run verify` < 3 min no esqueleto; `npm run sonar` (2 escopos) < 5 min
-com servidor já ativo. Não há metas de desempenho do app nesta feature.
+**Performance Goals**: N/A. Não há metas de desempenho nesta feature, nem do app nem dos
+comandos de verificação e análise.
 
 **Constraints**: execução 100% não interativa pelo agente; nenhum segredo em arquivo versionado ou
 em saída registrada; gravação de métricas somente-acréscimo e atômica; valores de tokens/custo
@@ -68,7 +68,7 @@ projetos SonarQube; 1 arquivo de métricas por feature.
 | II. Dados Exclusivamente no Aparelho | ✅ | `output: 'export'`; sem Route Handlers/Server Actions; CSP `connect-src 'self'` via `<meta>`; sem `next/font/google`, CDN ou telemetria; nenhuma dependência de runtime faz rede (R16). Offline após o primeiro carregamento: manifest + service worker que guarda a versão gerada em cache e só atende requisições da própria origem (FR-021, R19; quickstart Cenário 10). |
 | III. Limite Diário SBP | ✅ N/A | Nenhuma lógica de tempo nesta feature. |
 | IV. Interface Infantil | ✅ N/A | Sem área infantil; a página placeholder não tem alvos de toque nem padrões de engajamento. |
-| V. Qualidade Mensurável | ✅ | SonarQube Community local, Quality Gate `TCC` com todos os mínimos (R8, [contracts/sonar-scopes.md](contracts/sonar-scopes.md)); limites 10/15 no ESLint e no Sonar; `strict: true`; `no-explicit-any` como erro; ESLint + Prettier no `verify`; todas as métricas exigidas registradas (R9). Arquivos de configuração da raiz fora dos dois escopos, com justificativa no Complexity Tracking. |
+| V. Qualidade Mensurável | ✅ | SonarQube Community local, Quality Gate `TCC` com todos os mínimos (R8, [contracts/sonar-scopes.md](contracts/sonar-scopes.md)); limites 10/15 no ESLint e no Sonar; `strict: true`; `no-explicit-any` como erro; ESLint + Prettier no `verify`; todas as métricas exigidas registradas (R9). Arquivos de configuração da raiz e testes (`tests/**`, `*.test.*`, `*.spec.*`) fora dos dois escopos, com justificativa no Complexity Tracking. |
 | VI. Rastreabilidade com IA | ✅ | `metricas-ia.md` com todas as colunas exigidas; fonte verificável (ccusage lê as transcrições da sessão — fonte aceita pelo princípio); sem estimativas (FR-012); "rodada de correção" = prompt de correção, contado na etapa em que ocorre (FR-011c); snapshot SonarQube ao fim de `implement` e de cada etapa `correcao-N`; custo das sessões de registro à parte (FR-011b); consolidado em `docs/metricas/consolidado.md` (R10–R18). |
 | Stack (Next.js App Router estático, React, TS strict, Node 24 via `engines` + `.nvmrc`) | ✅ | Technical Context. |
 | Dependências justificadas, sem rede/telemetria/anúncios | ✅ | Tabela "Justificativa de dependências" abaixo; todas são de desenvolvimento, exceto `next`/`react`/`react-dom`. |
@@ -78,8 +78,8 @@ projetos SonarQube; 1 arquivo de métricas por feature.
 | Fluxo e portões (build, testes, Quality Gate, métricas) | ✅ | `verify` + `sonar` + `metricas-ia.md`; critério de conclusão no [quickstart.md](quickstart.md). |
 
 **Resultado (pré-Phase 0)**: aprovado. Os princípios I, II e IV são cumpridos integralmente,
-sem adiamento. O único adiamento (testes E2E, uma restrição técnica e não um princípio) e a
-exclusão dos arquivos de configuração da raiz da análise SonarQube estão justificados no
+sem adiamento. O único adiamento (testes E2E, uma restrição técnica e não um princípio) e as
+exclusões da análise SonarQube (arquivos de configuração da raiz e testes) estão justificados no
 Complexity Tracking.
 
 **Re-check pós-analyze (2026-11-01)**: aprovado. O suporte offline (FR-021) foi trazido para esta
@@ -212,3 +212,4 @@ fora da análise (arquivo gerado); a lógica analisada é a de `src/pwa/sw.ts`.
 |---|---|---|
 | Testes E2E (Restrições Técnicas, "testes end-to-end para o fluxo do responsável") adiados | Ainda não existe fluxo do responsável nem bloqueio | Um E2E sobre a página placeholder não testaria nada exigido pela constituição; Playwright entra junto com o primeiro fluxo |
 | Arquivos de configuração da raiz (`next.config.ts`, `eslint.config.mjs`, `vitest.config.mts`, `prettier.config.mjs`) fora dos dois escopos SonarQube (Princípio V, "Todo código DEVE ser analisado") | São configuração declarativa das ferramentas: não contêm lógica da aplicação nem da automação, nem funções com desvios a medir. O escopo `app` precisa conter só código da aplicação, porque é a base da comparação com o braço de vibe coding (FR-007), e o escopo `scripts` só a automação. Esses arquivos continuam passando pela etapa `padroes` do `verify` (ESLint e Prettier), e o efeito deles é verificado pelos testes (regras de complexidade, build) | Incluí-los no escopo `app` misturaria configuração de ferramentas ao código comparado no estudo. Incluí-los no escopo `scripts` acrescentaria arquivos sem funções às métricas da automação, o que só adiciona ruído. Um terceiro projeto Sonar para quatro arquivos declarativos traria mais um gate a manter sem nenhuma informação nova |
+| Testes e fixtures (`tests/**`, `**/*.test.*`, `**/*.spec.*`) fora dos dois escopos SonarQube (Princípio V, "Todo código DEVE ser analisado") | A exclusão foi pedida na descrição da feature. O braço de vibe coding não terá testes; incluir os testes nas métricas do escopo `app` acrescentaria a este braço código (linhas, duplicação, code smells, complexidade e dívida) que o outro braço não tem, e a comparação deixaria de ser entre códigos de aplicação equivalentes. Os testes continuam passando pelas etapas `tipos` e `padroes` do `verify` (TypeScript strict, ESLint com os limites 10/15 e Prettier). As fixtures de complexidade violam os limites de propósito (T025) e reprovariam qualquer gate | Incluí-los no escopo `app` contaminaria a base da comparação do estudo. Um terceiro projeto `tests` exigiria um gate próprio, que as fixtures reprovariam por construção, sem produzir dado usado na comparação |

@@ -52,6 +52,16 @@ automatizados ou pelo checklist de aceitação."
 - As colunas de complexidade máxima por função vêm do ESLint, não do servidor (FR-014, FR-015).
 - A geração do token do SonarQube é um passo manual da pesquisadora (User Story 2, Assumptions).
 
+### Revisão pós-analyze 2026-11-01 (segunda análise)
+
+- O registro retroativo sai da sessão de implement e passa para a primeira sessão de registro
+  depois do fim de implement; não há mais exceção à regra das sessões de registro (FR-020).
+- A etapa analyze reúne todas as sessões de análise e de correção dos apontamentos (FR-020).
+- A linha de base SonarQube é anterior a qualquer etapa `correcao-N` e a qualquer correção
+  motivada pela análise, não a qualquer prompt de correção (SC-007).
+- A sinalização de complexidade traz o local e, quando a regra fornecer, o nome da função
+  (FR-003).
+
 ## User Scenarios & Testing *(mandatory)*
 
 Os atores são o **agente de IA** (executa toda a verificação, análise e registro) e a
@@ -80,7 +90,8 @@ etapa identificada.
 2. **Given** um erro de tipo no código da aplicação, **When** o comando é executado, **Then** ele
    termina com falha e a saída identifica a etapa de verificação de tipos.
 3. **Given** uma função com complexidade ciclomática 11 (ou cognitiva 16), **When** o comando é
-   executado, **Then** a função é sinalizada com nome e local, e o comando termina com falha.
+   executado, **Then** a função é sinalizada com o local (arquivo, linha e coluna) e, quando a
+   regra fornecer, o nome da função, e o comando termina com falha.
 4. **Given** uma função com complexidade ciclomática 10 e cognitiva 15, **When** o comando é
    executado, **Then** ela não é sinalizada.
 5. **Given** um teste automatizado que falha, **When** o comando é executado, **Then** ele termina
@@ -195,9 +206,9 @@ coincidem com o relatório de sessões do ccusage para a sessão registrada.
   final.
 - **FR-002**: O comando MUST terminar com código de saída diferente de zero se qualquer etapa
   falhar, sem executar as etapas seguintes, e MUST indicar na saída qual etapa falhou.
-- **FR-003**: A verificação de padrões MUST sinalizar, com nome da função e local, toda função com
-  complexidade ciclomática acima de 10 ou complexidade cognitiva acima de 15, e essa sinalização
-  MUST fazer o comando falhar.
+- **FR-003**: A verificação de padrões MUST sinalizar, com o local (arquivo, linha e coluna) e,
+  quando a regra fornecer, o nome da função, toda função com complexidade ciclomática acima de 10
+  ou complexidade cognitiva acima de 15, e essa sinalização MUST fazer o comando falhar.
 - **FR-004**: Os testes automatizados MUST gerar um relatório de cobertura em formato legível por
   pessoas e em formato importável pelo SonarQube. O percentual de cobertura MUST NOT fazer o
   comando único falhar; ele é apenas reportado (e registrado via SonarQube).
@@ -282,10 +293,11 @@ coincidem com o relatório de sessões do ccusage para a sessão registrada.
 - **FR-020**: Esta feature MUST registrar as próprias etapas no seu arquivo de métricas. Todas as
   etapas ocorridas antes de a infraestrutura de registro existir (constitution, specify, clarify,
   plan, tasks e analyze) MUST ser registradas retroativamente a partir dos dados históricos do
-  ccusage, cada linha marcada como "retroativo" e com o(s) ID(s) de sessão de origem. A etapa
-  analyze inclui a sessão da análise e a sessão em que os apontamentos foram corrigidos nos
-  artefatos. A etapa implement não é retroativa: é registrada numa sessão de registro depois que
-  termina.
+  ccusage, cada linha marcada como "retroativo" e com o(s) ID(s) de sessão de origem. O registro
+  retroativo MUST ser feito na primeira sessão de registro (FR-011b) aberta depois do fim de
+  implement, nunca dentro da sessão de implement. A etapa analyze inclui todas as sessões de
+  análise e todas as sessões em que os apontamentos foram corrigidos nos artefatos. A etapa
+  implement não é retroativa: é registrada na mesma sessão de registro, depois que termina.
 - **FR-021**: O app MUST funcionar offline depois do primeiro carregamento (Princípio II). A
   versão final MUST incluir um manifest de aplicação web e um service worker que guarda em cache
   todos os arquivos da versão gerada e os serve a partir do cache sem rede. O service worker MUST
@@ -328,8 +340,9 @@ coincidem com o relatório de sessões do ccusage para a sessão registrada.
   ccusage para os IDs de sessão guardados na linha, conferido por verificação automatizada.
 - **SC-006**: Após registrar 2 medições seguidas, as linhas anteriores do arquivo são idênticas às
   de antes (verificado por comparação automatizada).
-- **SC-007**: O arquivo de métricas desta feature contém uma linha de base SonarQube com data/hora
-  anterior a qualquer rodada de correção.
+- **SC-007**: O arquivo de métricas desta feature contém, para cada escopo, uma linha de base
+  SonarQube com data/hora anterior ao início de qualquer etapa `correcao-N` e a qualquer correção
+  motivada pela análise.
 - **SC-008**: Uma verificação automatizada confirma que nenhum arquivo versionado nem o arquivo de
   métricas contêm o token de acesso ao SonarQube.
 - **SC-009**: Um teste automatizado confirma que a lista de cache do service worker contém 100%

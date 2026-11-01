@@ -17,7 +17,7 @@ Executa, nesta ordem, parando na primeira falha:
 - Antes de cada etapa: `VERIFY ▶ etapa=<nome>`.
 - Falha: `VERIFY FALHOU: etapa=<nome> (código <n>)` na saída de erro; etapas seguintes não rodam.
 - Sucesso: `VERIFY OK: 4/4 etapas`, código 0.
-- A saída das ferramentas é repassada sem filtro (arquivo, linha, nome da função, nome do teste).
+- A saída das ferramentas é repassada sem filtro (arquivo, linha, coluna, nome da função quando a regra informa, nome do teste).
 - Cobertura gerada em `coverage/` (`index.html`, `lcov.info`); percentual não afeta o código de
   saída.
 
@@ -59,6 +59,8 @@ Em qualquer falha dos passos 1–5 nenhuma linha é gravada.
 - Sem `--correcoes`, lista os prompts encontrados e sai com código 20 pedindo o número de prompts
   de correção (FR-011c); o agente classifica e roda de novo.
 - Recusa (código 21) a sessão ativa e sessões já registradas na feature.
+- Etapa agregada (nomes unidos por `+`) sem `--retroativo` é desvio (sessão com mais de uma etapa
+  por engano) e exige `--obs` não vazio; sem ele, a linha é recusada como as demais validações de argumento e nada é gravado.
 - ccusage indisponível ou sessão inexistente → código 22, nada gravado.
 - Feature alvo: a do diretório `specs/` resolvida pelo Spec Kit (`SPECIFY_FEATURE` ou a mais
   recente); pode ser forçada com `--feature <dir>`.

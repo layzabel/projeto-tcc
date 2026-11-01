@@ -40,7 +40,7 @@ Checklist com injeção real (desfazer cada alteração depois):
 | # | Injeção | Esperado |
 |---|---|---|
 | 2a | `const x: number = 'a';` em `src/app/page.tsx` | `VERIFY FALHOU: etapa=tipos (código 1)` |
-| 2b | copiar `tests/fixtures/complexity/cyclomatic-11.ts` para `src/lib/` | `etapa=padroes (código 2)`, mensagem com nome da função e linha |
+| 2b | copiar `tests/fixtures/complexity/cyclomatic-11.ts` para `src/lib/` | `etapa=padroes (código 2)`, mensagem com arquivo, linha e coluna (e nome da função, quando a regra informa) |
 | 2c | `expect(1).toBe(2)` num teste | `etapa=testes (código 3)`, nome do teste na saída |
 | 2d | `export const dynamic = 'force-dynamic'` em `src/app/page.tsx` (incompatível com `output: 'export'`) | `etapa=build (código 4)` |
 
@@ -96,10 +96,11 @@ Falhas controladas: `--sessao 00000000-0000-0000-0000-000000000000` → código 
 npm run metrics:ia -- --etapa constitution+specify --sessao <id> --retroativo --correcoes <n>
 ```
 
-Repetir para cada sessão histórica (constitution, specify, clarify, plan, tasks, analyze). A
-etapa analyze reúne a sessão da análise e a da correção dos apontamentos
-(`--etapa analyze --sessao <id1>,<id2>`). Esperado: linhas com `tipo = retroativo` e IDs de
-origem. `implement` não entra aqui: é registrada numa sessão de registro depois que termina.
+Roda na primeira sessão de registro depois do fim de implement (FR-020), nunca dentro de
+implement. Repetir para cada sessão histórica (constitution, specify, clarify, plan, tasks,
+analyze). A etapa analyze reúne todas as sessões de análise e de correção dos apontamentos
+(`--etapa analyze --sessao <id1>,<id2>,…`). Esperado: linhas com `tipo = retroativo` e IDs de
+origem. `implement` não é retroativa: é registrada na mesma sessão de registro, sem `--retroativo`.
 
 ## Cenário 7 — Consolidado (FR-018)
 

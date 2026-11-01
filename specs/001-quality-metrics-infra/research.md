@@ -45,7 +45,8 @@ Cada decisão segue o formato Decisão / Justificativa / Alternativas considerad
 
 ## R4. Testes e cobertura
 
-- **Decisão**: Vitest 3.x + `@vitest/coverage-v8`, ambiente `jsdom` para componentes (com
+- **Decisão**: Vitest 3.2 ou superior na linha 3.x (necessário para `test.projects`) +
+  `@vitest/coverage-v8` na mesma versão, ambiente `jsdom` para componentes (com
   `@testing-library/react`) e `node` para scripts. Reporters de cobertura: `text` e `html`
   (legível por pessoas, `coverage/index.html`) e `lcov` (`coverage/lcov.info`, importado pelo
   SonarQube). Nenhum `thresholds` configurado (clarificação: cobertura não faz o comando falhar).
@@ -163,9 +164,10 @@ Cada decisão segue o formato Decisão / Justificativa / Alternativas considerad
   `registro`; o consolidado soma essas linhas numa seção de custo de medição, fora dos totais das
   etapas. A última sessão de registro de uma feature é registrada pela primeira sessão de registro
   posterior, com `--feature` apontando para a feature de origem.
-- **Exceção única**: o registro retroativo desta feature (FR-020) roda dentro de `implement`,
-  porque é ali que a ferramenta passa a existir e precisa ser validada. O custo fica na linha de
-  `implement`, anotado em `observacao`.
+- **Sem exceções**: o registro retroativo desta feature (FR-020) também roda numa sessão de
+  registro, a primeira aberta depois do fim de `implement`. Dentro de `implement` a ferramenta é
+  validada só com execuções que não gravam nada (código 20 com a lista de prompts, falhas
+  controladas 21 e 22), de modo que o custo de implement não inclui custo de medição.
 - **Justificativa**: se a etapa se registrasse dentro da própria sessão, os tokens gastos depois do
   registro ficariam de fora e o total no ccusage mudaria, tornando impossível o SC-005 ("idênticos
   ao relatório"). Registrar na sessão da etapa seguinte resolveria isso, mas misturaria custo de
@@ -254,10 +256,12 @@ Cada decisão segue o formato Decisão / Justificativa / Alternativas considerad
   linha só, com as etapas unidas por `+` e o valor de tipo `retroativo`, sem dividir valores. Uma
   etapa espalhada em várias sessões usa `--sessao id1,id2` e a linha guarda a soma e todos os IDs.
 - **Etapas retroativas**: constitution, specify, clarify, plan, tasks e analyze (commits
-  `a3ad42e`, `26c7dbc`, `426d897` e `f1938d9` ajudam a datar). A etapa analyze reúne a sessão
-  da análise e a sessão em que os apontamentos foram corrigidos nos artefatos
-  (`--sessao id1,id2`); os prompts que pedem essas correções são prompts de correção da etapa
-  analyze. `implement` não é retroativa: é registrada numa sessão de registro depois que termina.
+  `a3ad42e`, `26c7dbc`, `426d897`, `f1938d9` e `8398d4b` ajudam a datar). A etapa analyze reúne
+  todas as sessões de análise e todas as sessões em que os apontamentos foram corrigidos nos
+  artefatos (`--sessao id1,id2,…`, em ordem cronológica); os prompts que pedem essas correções
+  são prompts de correção da etapa analyze. O registro retroativo roda na primeira sessão de
+  registro depois do fim de `implement` (R11). `implement` não é retroativa: é registrada na
+  mesma sessão de registro.
 - **Justificativa**: regras dos edge cases da spec.
 
 ## R19. Funcionamento offline do esqueleto (FR-021, Princípio II)
