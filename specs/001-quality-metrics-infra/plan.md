@@ -85,6 +85,14 @@ Complexity Tracking.
 **Re-check pós-analyze (2026-11-01)**: aprovado. O suporte offline (FR-021) foi trazido para esta
 feature, porque o Princípio II não admite exceção.
 
+**Re-check contra a constituição v1.0.1 (2026-11-01)**: aprovado. A emenda (PATCH) define a etapa
+`correcao-N`, exige o snapshot SonarQube ao fim de `implement` e de cada `correcao-N` (não a cada
+prompt de correção) e admite linha agregada quando a fonte não separa etapas da mesma sessão,
+sem rateio. O plano já cumpre os três pontos: etapa `correcao-N` em sessão própria (FR-011c, R13),
+snapshot em T063 e nas etapas `correcao-N` (T065), e linha agregada com as etapas unidas por `+`
+e valores não divididos (R18). A sessão da emenda é registrada como linha `constitution`
+retroativa (FR-020).
+
 **Re-check pós-Phase 1**: aprovado. O design (contratos e modelo de dados) não introduz servidor,
 rede em tempo de execução nem coleta de dados. Ponto de atenção registrado: a complexidade máxima
 por função vem do ESLint (mesma regra cognitiva do Sonar), porque o SonarQube não expõe essa

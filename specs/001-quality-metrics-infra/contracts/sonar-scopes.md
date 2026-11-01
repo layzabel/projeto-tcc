@@ -49,3 +49,7 @@ lista os arquivos de cada projeto. A verificação passa somente se:
 
 Perfil `TCC TypeScript` (herda de "Sonar way"): S3776 `threshold=15` e S1541 `threshold=10`,
 ambas Critical.
+
+O servidor roda no modo **Standard Experience** (`sonar.multi-quality-mode.enabled=false`),
+definido pelo `sonar:setup` antes de criar o perfil e o gate, para que as métricas acima (as
+legadas, citadas pelo Princípio V) sejam as usadas pelo gate e lidas pelo agente.

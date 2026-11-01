@@ -101,6 +101,13 @@ Cada decisão segue o formato Decisão / Justificativa / Alternativas considerad
   - Scanner: `@sonar/scan` (scanner oficial distribuído via npm) como devDependency; o JRE é
     provisionado pelo próprio servidor. `sonar.qualitygate.wait=true` faz o scanner aguardar o
     processamento (FR-006).
+  - Gate reprovado × falha do scanner: com `sonar.qualitygate.wait=true`, o scanner também sai
+    com código ≠ 0 quando o gate reprova. Por isso o código de saída sozinho não decide. Antes de
+    cada execução, o agente apaga `.scannerwork/report-task.txt`. Se o scanner sair com código ≠ 0,
+    o arquivo existir e `api/ce/task` do `ceTaskId` lido nele estiver `SUCCESS`, a análise foi
+    processada e o caso é **gate reprovado** (não é falha; a linha é gravada com o `ERROR`). Em
+    qualquer outro caso (arquivo ausente ou tarefa diferente de `SUCCESS`), é **falha do
+    scanner** (código 12).
   - Token: lido de `SONAR_TOKEN` (o scanner já reconhece a variável); nunca passado em argumento de
     linha de comando nem gravado.
 - **Justificativa**: separação física dos escopos é a forma mais simples e auditável na edição
@@ -120,8 +127,18 @@ Cada decisão segue o formato Decisão / Justificativa / Alternativas considerad
     `security_hotspots_reviewed < 100`, `duplicated_lines_density > 3`, `sqale_rating > 1` (A),
     `blocker_violations > 0`, `critical_violations > 0`;
   - associação do perfil e do gate aos dois projetos.
+  - **Modo Standard Experience**: a imagem `sonarqube:community` atual vem no modo MQR (*Multi-
+    Quality Rule*), em que o gate e as medidas usam as qualidades de software, e não as métricas
+    legadas que o Princípio V e o FR-014 citam (`bugs`, `vulnerabilities`, `code_smells`,
+    `sqale_rating`, `blocker_violations`, `critical_violations`). Antes de criar o perfil e o gate,
+    o `sonar:setup` define o modo Standard Experience (`api/settings/set` com
+    `key=sonar.multi-quality-mode.enabled` e `value=false`), confere o valor com
+    `api/settings/values` e falha com mensagem em pt-BR se não conseguir. A troca vale para as
+    análises seguintes; como o setup roda antes da primeira análise, a linha de base já sai no modo
+    certo.
 - **Justificativa**: transcreve os mínimos da constituição; condições sobre *Overall Code* em vez
-  de *New Code* porque cada feature precisa da foto completa.
+  de *New Code* porque cada feature precisa da foto completa. O modo Standard Experience mantém os
+  nomes de métrica da constituição, sem tradução entre os dois modos.
 - **Alternativas**: configuração manual na interface (não reproduzível pelo agente).
 
 ## R9. Leitura das métricas SonarQube
@@ -150,6 +167,16 @@ Cada decisão segue o formato Decisão / Justificativa / Alternativas considerad
   `modelsUsed`, `metadata.lastActivity`. Custo gravado com a precisão completa devolvida no JSON.
   `--offline` usa a tabela de preços embutida na versão fixada, de modo que a mesma sessão sempre
   gera o mesmo custo — requisito para a conferência automatizada (SC-005).
+- **Modelo sem preço na tabela embutida**: se o modelo usado na sessão não estiver na tabela de
+  preços da versão fixada, o ccusage devolve custo 0 (ou parcial) com tokens > 0, e esse valor
+  passaria na conferência por ser "idêntico". Por isso `parseSessions` recusa com `CcusageError`
+  qualquer sessão com `totalCost` igual a 0 e soma de tokens > 0; o registro sai com código 22 e
+  nada é gravado.
+- **Retenção das transcrições**: o ccusage e a contagem de prompts (R12) leem as transcrições
+  `.jsonl` do Claude Code, que por padrão são apagadas depois de 30 dias. Isso tornaria o registro
+  retroativo e o `metrics:check` (SC-005) impossíveis depois desse prazo. O projeto fixa
+  `"cleanupPeriodDays": 3650` em `.claude/settings.json` (versionado), para que as transcrições do
+  estudo fiquem disponíveis até o fim da conferência.
 - **Justificativa**: ccusage lê as transcrições locais do Claude Code, fonte verificável aceita
   pelo Princípio VI.
 - **Alternativas**: `ccusage@latest` online (o custo de uma sessão antiga pode mudar com a tabela
@@ -168,6 +195,9 @@ Cada decisão segue o formato Decisão / Justificativa / Alternativas considerad
   registro, a primeira aberta depois do fim de `implement`. Dentro de `implement` a ferramenta é
   validada só com execuções que não gravam nada (código 20 com a lista de prompts, falhas
   controladas 21 e 22), de modo que o custo de implement não inclui custo de medição.
+- **Transcrições preservadas**: registrar depois do fim da sessão só funciona enquanto a
+  transcrição existe. O `cleanupPeriodDays` alto em `.claude/settings.json` (R10) garante que uma
+  sessão de registro tardia, ou uma conferência posterior, ainda encontre os dados.
 - **Justificativa**: se a etapa se registrasse dentro da própria sessão, os tokens gastos depois do
   registro ficariam de fora e o total no ccusage mudaria, tornando impossível o SC-005 ("idênticos
   ao relatório"). Registrar na sessão da etapa seguinte resolveria isso, mas misturaria custo de
@@ -256,7 +286,10 @@ Cada decisão segue o formato Decisão / Justificativa / Alternativas considerad
   linha só, com as etapas unidas por `+` e o valor de tipo `retroativo`, sem dividir valores. Uma
   etapa espalhada em várias sessões usa `--sessao id1,id2` e a linha guarda a soma e todos os IDs.
 - **Etapas retroativas**: constitution, specify, clarify, plan, tasks e analyze (commits
-  `a3ad42e`, `26c7dbc`, `426d897`, `f1938d9` e `8398d4b` ajudam a datar). A etapa analyze reúne
+  `a3ad42e`, `26c7dbc`, `426d897`, `f1938d9`, `8398d4b`, `ce65ec3` e `4b3bc6c` ajudam a datar).
+  A sessão da emenda da constituição para v1.0.1 (commit `4b3bc6c`), feita depois das análises,
+  é registrada como uma linha própria `constitution`, retroativa, com
+  `--obs "emenda v1.0.1"`; ela não entra na linha de analyze. A etapa analyze reúne
   todas as sessões de análise e todas as sessões em que os apontamentos foram corrigidos nos
   artefatos (`--sessao id1,id2,…`, em ordem cronológica); os prompts que pedem essas correções
   são prompts de correção da etapa analyze. O registro retroativo roda na primeira sessão de

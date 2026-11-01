@@ -62,6 +62,11 @@ automatizados ou pelo checklist de aceitação."
 - A sinalização de complexidade traz o local e, quando a regra fornecer, o nome da função
   (FR-003).
 
+### Revisão pós-analyze 2026-11-01 (terceira análise)
+
+- A sessão da emenda da constituição para v1.0.1, feita depois das análises, é registrada como
+  uma linha `constitution` retroativa própria, com a observação "emenda v1.0.1" (FR-020).
+
 ## User Scenarios & Testing *(mandatory)*
 
 Os atores são o **agente de IA** (executa toda a verificação, análise e registro) e a
@@ -296,8 +301,11 @@ coincidem com o relatório de sessões do ccusage para a sessão registrada.
   ccusage, cada linha marcada como "retroativo" e com o(s) ID(s) de sessão de origem. O registro
   retroativo MUST ser feito na primeira sessão de registro (FR-011b) aberta depois do fim de
   implement, nunca dentro da sessão de implement. A etapa analyze inclui todas as sessões de
-  análise e todas as sessões em que os apontamentos foram corrigidos nos artefatos. A etapa
-  implement não é retroativa: é registrada na mesma sessão de registro, depois que termina.
+  análise e todas as sessões em que os apontamentos foram corrigidos nos artefatos. A sessão da
+  emenda da constituição para v1.0.1, feita depois das análises, MUST ser registrada como uma
+  linha `constitution` própria, marcada como "retroativo" e com a observação "emenda v1.0.1"; ela
+  não entra na linha de analyze. A etapa implement não é retroativa: é registrada na mesma sessão
+  de registro, depois que termina.
 - **FR-021**: O app MUST funcionar offline depois do primeiro carregamento (Princípio II). A
   versão final MUST incluir um manifest de aplicação web e um service worker que guarda em cache
   todos os arquivos da versão gerada e os serve a partir do cache sem rede. O service worker MUST

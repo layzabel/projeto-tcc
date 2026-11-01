@@ -31,8 +31,10 @@ Docker não estiver disponível ou o tempo esgotar.
 ## `npm run sonar:setup`
 
 Idempotente. Requer `SONAR_TOKEN` com permissão de administrador e `SONAR_HOST_URL` (padrão
-`http://localhost:9000`). Cria/atualiza perfil `TCC TypeScript`, Quality Gate `TCC` e os dois
-projetos ([sonar-scopes.md](sonar-scopes.md)).
+`http://localhost:9000`). Primeiro define o modo Standard Experience
+(`sonar.multi-quality-mode.enabled=false`) e confere o valor; depois cria/atualiza o perfil
+`TCC TypeScript`, o Quality Gate `TCC` e os dois projetos ([sonar-scopes.md](sonar-scopes.md)).
+Código ≠ 0 com mensagem em pt-BR se o modo não puder ser definido.
 
 ## `npm run sonar -- --etapa <etapa>` (FR-006 a FR-009, FR-014, FR-015, FR-017)
 
@@ -41,6 +43,10 @@ projetos ([sonar-scopes.md](sonar-scopes.md)).
 2. Exige `coverage/lcov.info` (rodar `npm run verify` antes); senão código 11.
 3. Analisa o escopo `app`, depois `scripts` (`sonar.qualitygate.wait=true`). Gate reprovado **não**
    impede o registro (o resultado `ERROR` é dado do estudo); falha do scanner sai com código 12.
+   Como o scanner também sai com código ≠ 0 quando o gate reprova, o critério é: antes de cada
+   execução, apagar `.scannerwork/report-task.txt`; se o scanner sair com código ≠ 0, o arquivo
+   existir e `api/ce/task` do `ceTaskId` lido nele estiver `SUCCESS` → gate reprovado, segue
+   adiante; senão → falha do scanner, código 12.
 4. Verifica o escopo (SC-004); arquivo fora do escopo → código 13, lista os arquivos.
 5. Lê as métricas, calcula os máximos por função e acrescenta as 2 linhas em `metricas-ia.md`.
    Imprime as linhas gravadas e a situação dos dois gates.
@@ -62,6 +68,8 @@ Em qualquer falha dos passos 1–5 nenhuma linha é gravada.
 - Etapa agregada (nomes unidos por `+`) sem `--retroativo` é desvio (sessão com mais de uma etapa
   por engano) e exige `--obs` não vazio; sem ele, a linha é recusada como as demais validações de argumento e nada é gravado.
 - ccusage indisponível ou sessão inexistente → código 22, nada gravado.
+- Sessão com custo 0 e tokens > 0 (modelo sem preço na tabela embutida do ccusage) → código 22,
+  nada gravado.
 - Feature alvo: a do diretório `specs/` resolvida pelo Spec Kit (`SPECIFY_FEATURE` ou a mais
   recente); pode ser forçada com `--feature <dir>`.
 
