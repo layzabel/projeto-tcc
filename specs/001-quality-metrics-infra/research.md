@@ -74,6 +74,11 @@ Cada decisão segue o formato Decisão / Justificativa / Alternativas considerad
   ignoradas pelo lint normal e pelo Sonar, e um teste que usa a API Node do ESLint
   (`new ESLint({ overrideConfigFile: 'eslint.config.mjs', ignore: false })`) para lintar cada fixture
   e verificar quais são sinalizadas.
+- **Construções permitidas nas fixtures de ciclomática**: só `if`, `for`, `while`, `&&` e `||`,
+  que a regra `complexity` do ESLint e a regra S1541 do SonarQube contam da mesma forma (+1 cada).
+  Ficam proibidos `??`, `?.`, parâmetros com valor padrão, `switch`/`case`, `catch`, operador
+  ternário e atribuições lógicas (`&&=`, `||=`, `??=`), que as duas ferramentas não contam
+  igual. Assim, o valor 10/11 de uma fixture vale para as duas.
 - **Justificativa**: testa a configuração real do projeto, não uma cópia.
 - **Alternativas**: testar só via checklist manual (não automatizado).
 
@@ -151,16 +156,24 @@ Cada decisão segue o formato Decisão / Justificativa / Alternativas considerad
 
 ## R11. Momento do registro de uma etapa
 
-- **Decisão**: a linha de IA de uma etapa é gravada **depois que a sessão da etapa termina**, como
-  primeira ação da sessão seguinte (ou numa sessão curta de registro), informando o ID da sessão
-  encerrada. O script recusa registrar a sessão ativa (a transcrição modificada mais recentemente
-  no diretório do projeto).
+- **Decisão**: a linha de IA de uma etapa é gravada **depois que a sessão da etapa termina**, numa
+  **sessão de registro** dedicada (FR-011a, FR-011b), informando o ID da sessão encerrada. O
+  script recusa registrar a sessão ativa (a transcrição modificada mais recentemente no diretório
+  do projeto). Cada sessão de registro também registra a sessão de registro anterior, com etapa
+  `registro`; o consolidado soma essas linhas numa seção de custo de medição, fora dos totais das
+  etapas. A última sessão de registro de uma feature é registrada pela primeira sessão de registro
+  posterior, com `--feature` apontando para a feature de origem.
+- **Exceção única**: o registro retroativo desta feature (FR-020) roda dentro de `implement`,
+  porque é ali que a ferramenta passa a existir e precisa ser validada. O custo fica na linha de
+  `implement`, anotado em `observacao`.
 - **Justificativa**: se a etapa se registrasse dentro da própria sessão, os tokens gastos depois do
   registro ficariam de fora e o total no ccusage mudaria, tornando impossível o SC-005 ("idênticos
-  ao relatório"). Os tokens do próprio registro ficam na sessão da etapa seguinte e são contados
-  nela, sem perda nem dupla contagem.
+  ao relatório"). Registrar na sessão da etapa seguinte resolveria isso, mas misturaria custo de
+  medição ao custo da etapa seguinte e distorceria a comparação; a sessão de registro separa os
+  dois sem perda nem dupla contagem.
 - **Alternativas**: registrar no fim da própria sessão (valor incompleto e não conferível);
-  registrar e depois corrigir a linha (viola FR-016).
+  registrar no início da sessão da etapa seguinte (contamina a etapa seguinte); registrar e depois
+  corrigir a linha (viola FR-016).
 
 ## R12. Contagem de prompts
 
@@ -175,9 +188,16 @@ Cada decisão segue o formato Decisão / Justificativa / Alternativas considerad
 
 ## R13. Rodadas de correção
 
-- **Decisão**: informadas pelo agente como argumento (`--correcoes N`), aplicando a definição do
-  Princípio VI aos prompts da sessão; o script exibe os prompts contados para o agente classificar.
-  Em sessões `correcao-N` o valor é ≥ 1.
+- **Decisão**: dois conceitos distintos (FR-011c):
+  - **prompt de correção**: a "rodada de correção" do Princípio VI; é contado em
+    `rodadas_correcao` da etapa em que ocorre, qualquer que seja a etapa (ex.: corrigir um teste
+    durante `implement`, ou corrigir os artefatos depois de `/speckit-analyze`);
+  - **etapa `correcao-N`**: sessão própria aberta depois do fim de `implement` para tratar um
+    portão reprovado; tem `rodadas_correcao` ≥ 1 e termina com `npm run sonar -- --etapa
+    correcao-N`.
+  O número de prompts de correção é informado pelo agente como argumento (`--correcoes N`); o
+  script exibe os prompts contados para o agente classificar. Sessões `registro` têm
+  `--correcoes 0`.
 - **Justificativa**: classificar a intenção de um prompt não é mecanizável com segurança; o número
   de prompts (dado objetivo) continua extraído automaticamente.
 - **Alternativas**: heurística por palavras-chave ("corrija", "erro") — frágil e não auditável.
@@ -233,4 +253,40 @@ Cada decisão segue o formato Decisão / Justificativa / Alternativas considerad
   histórica. Quando uma sessão abrigou várias etapas (ex.: `constitution+specify`), é gravada uma
   linha só, com as etapas unidas por `+` e o valor de tipo `retroativo`, sem dividir valores. Uma
   etapa espalhada em várias sessões usa `--sessao id1,id2` e a linha guarda a soma e todos os IDs.
+- **Etapas retroativas**: constitution, specify, clarify, plan, tasks e analyze (commits
+  `a3ad42e`, `26c7dbc`, `426d897` e `f1938d9` ajudam a datar). A etapa analyze reúne a sessão
+  da análise e a sessão em que os apontamentos foram corrigidos nos artefatos
+  (`--sessao id1,id2`); os prompts que pedem essas correções são prompts de correção da etapa
+  analyze. `implement` não é retroativa: é registrada numa sessão de registro depois que termina.
 - **Justificativa**: regras dos edge cases da spec.
+
+## R19. Funcionamento offline do esqueleto (FR-021, Princípio II)
+
+- **Decisão**:
+  - **Manifest**: `src/app/manifest.ts` (rota de metadados do App Router, `dynamic =
+    'force-static'`) gera `out/manifest.webmanifest` com `name`, `short_name`, `lang: 'pt-BR'`,
+    `start_url: '/'`, `display: 'standalone'` e o ícone local `src/app/icon.svg`. O Next insere o
+    `<link rel="manifest">` sozinho.
+  - **Service worker**: lógica em `src/pwa/sw.ts` (TypeScript, só sintaxe apagável, sem imports
+    nem exports, verificado por `src/pwa/tsconfig.json` com `lib: ["esnext", "webworker"]`).
+    `install` abre o cache `tcc-<versão>` e guarda a lista `PRECACHE`; `activate` apaga os caches
+    `tcc-*` de outras versões e chama `clients.claim()`; `fetch` ignora requisições que não são
+    `GET` ou que são de outra origem (deixa o navegador tratar, sem nenhuma requisição feita pelo
+    SW) e responde do cache (`ignoreSearch: true`) ou da rede; navegação sem rede cai em
+    `/index.html` do cache.
+  - **Geração**: `scripts/pwa/generate-sw.ts` roda depois do `next build` (etapa `build` do
+    `verify`), lista os arquivos de `out/` (exceto `sw.js`), converte cada caminho em URL (`/` +
+    caminho com `/`; `index.html` também vira `/`), calcula a versão como os 12 primeiros
+    caracteres hex do SHA-256 dos caminhos e conteúdos ordenados, converte `sw.ts` com
+    `stripTypeScriptTypes` (`node:module`), troca os marcadores `'__SW_VERSION__'` e
+    `['__SW_PRECACHE__']` (cada um exatamente uma vez) e grava `out/sw.js`.
+  - **Registro**: `src/pwa/register.ts` exporta `registerServiceWorker(container, enabled)`,
+    chamada por `src/app/sw-register.tsx` (componente cliente no layout) só quando
+    `process.env.NODE_ENV === 'production'` e `'serviceWorker' in navigator`.
+- **Justificativa**: cumpre "DEVE funcionar offline após o primeiro carregamento" sem dependência
+  nova e sem rede externa. A lógica do SW fica em `src/`, sob tipos, lint e análise do escopo
+  `app`; só o arquivo gerado (`out/sw.js`) fica fora da análise. A versão por hash troca o cache
+  a cada build diferente.
+- **Alternativas**: `next-pwa`/Workbox (dependências extras, geram código fora do escopo
+  analisado); `public/sw.js` escrito à mão (lista de cache desatualizada a cada build e
+  JavaScript sem verificação de tipos).

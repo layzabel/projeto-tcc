@@ -10,10 +10,15 @@ ou como valores transitórios lidos de ferramentas externas (ccusage, transcriç
 
 | Campo | Tipo | Regras |
 |---|---|---|
-| `nome` | texto | `constitution`, `specify`, `clarify`, `plan`, `tasks`, `analyze`, `implement` ou `correcao-N` (N ≥ 1). Linhas agregadas usam nomes unidos por `+` (ex.: `constitution+specify`). |
+| `nome` | texto | `constitution`, `specify`, `clarify`, `plan`, `tasks`, `analyze`, `implement`, `correcao-N` (N ≥ 1) ou `registro`. Linhas agregadas usam nomes unidos por `+` (ex.: `constitution+specify`); `registro` nunca é agregado. |
 | `sessoes` | lista de UUID | ≥ 1 ID de sessão do Claude Code. Cada sessão pertence a no máximo uma linha de IA da feature. |
 
-- Uma rodada de correção é uma etapa própria (`correcao-N`), em sessão própria (FR-011a).
+- **Prompt de correção** (= "rodada de correção" do Princípio VI): contado em `rodadas_correcao`
+  da etapa em que ocorre (FR-011c).
+- **Etapa `correcao-N`**: sessão própria depois do fim de `implement`, para tratar um portão
+  reprovado; `rodadas_correcao` ≥ 1; termina com medição SonarQube (FR-011c).
+- **`registro`**: sessão de registro (FR-011b); custo de medição, fora dos totais das etapas;
+  `rodadas_correcao` = 0.
 - Desvio (sessão com mais de uma etapa por engano) → linha agregada com `observacao` preenchida.
 
 ## Medição de IA (linha da tabela "Medições de IA")
@@ -29,7 +34,7 @@ ou como valores transitórios lidos de ferramentas externas (ccusage, transcriç
 | `tokens_cache_leitura` | inteiro ≥ 0 | soma de `cacheReadTokens` | — |
 | `custo_usd` | decimal | soma de `totalCost` | precisão completa do JSON, sem arredondar |
 | `prompts` | inteiro ≥ 1 | transcrição da sessão (regra R12 do [research.md](research.md)) | — |
-| `rodadas_correcao` | inteiro ≥ 0 | argumento `--correcoes` | ≥ 1 quando `etapa` é `correcao-N` |
+| `rodadas_correcao` | inteiro ≥ 0 | argumento `--correcoes` (número de prompts de correção) | ≥ 1 quando `etapa` é `correcao-N`; = 0 quando `etapa` é `registro` |
 | `versao_ccusage` | semver | constante fixada no script | igual à versão efetivamente executada |
 | `sessoes` | UUIDs separados por `,` | argumento `--sessao` | cada ID existe no ccusage |
 | `tipo` | enum | `no momento` \| `retroativo` | — |
@@ -64,9 +69,9 @@ Exclusões e a regra de disjunção estão em [contracts/sonar-scopes.md](contra
 | `code_smells` | inteiro | `code_smells` |
 | `duplicacao_pct` | decimal | `duplicated_lines_density` |
 | `ciclomatica_total` | inteiro | `complexity` |
-| `ciclomatica_max_funcao` | inteiro | ESLint `complexity` limite 0 (R9) |
+| `ciclomatica_max_funcao` | inteiro | ESLint `complexity` limite 0 sobre os arquivos do escopo (R9, FR-014) |
 | `cognitiva_total` | inteiro | `cognitive_complexity` |
-| `cognitiva_max_funcao` | inteiro | ESLint `sonarjs/cognitive-complexity` limite 0 (R9) |
+| `cognitiva_max_funcao` | inteiro | ESLint `sonarjs/cognitive-complexity` limite 0 sobre os arquivos do escopo (R9, FR-014) |
 | `divida_min` | inteiro | `sqale_index` |
 | `manutenibilidade` | `A`–`E` | `sqale_rating` (1→A … 5→E) |
 | `cobertura_pct` | decimal | `coverage` |
@@ -88,5 +93,8 @@ Exclusões e a regra de disjunção estão em [contracts/sonar-scopes.md](contra
 ## Consolidado
 
 - `docs/metricas/consolidado.md`, regenerado inteiro a partir de todos os arquivos de métricas.
-- IA: por feature, soma de tokens, custo, prompts e rodadas; total geral.
+- IA: por feature, soma de tokens, custo, prompts e rodadas das etapas (sem as linhas
+  `registro`); total geral.
+- Custo de medição: por feature, soma das linhas `registro`; total geral; seção própria, fora da
+  comparação (FR-011b, FR-018).
 - SonarQube: por feature, a última linha de cada escopo; seção app separada da seção scripts.

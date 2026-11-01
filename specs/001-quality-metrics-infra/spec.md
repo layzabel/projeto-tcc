@@ -40,10 +40,22 @@ automatizados ou pelo checklist de aceitação."
 - Q: O comando único deve falhar quando a cobertura ficar abaixo de um mínimo? → A: Não; a
   cobertura é apenas gerada e reportada, sem limite que faça o comando falhar.
 
+### Revisão pós-analyze 2026-11-01
+
+- O esqueleto passa a funcionar offline nesta feature (manifest + service worker que guarda a
+  versão gerada em cache), para cumprir o Princípio II sem adiamento (FR-021, SC-009).
+- A etapa `analyze` entra no registro retroativo; "início de implement" sai dele (FR-020).
+- A linha de IA de uma etapa é gravada depois que a sessão da etapa termina, numa sessão de
+  registro; o custo das sessões de registro é custo de medição, reportado à parte (FR-011a,
+  FR-011b, FR-018).
+- "Prompt de correção" e "etapa correcao-N" passam a ser conceitos distintos (FR-011c).
+- As colunas de complexidade máxima por função vêm do ESLint, não do servidor (FR-014, FR-015).
+- A geração do token do SonarQube é um passo manual da pesquisadora (User Story 2, Assumptions).
+
 ## User Scenarios & Testing *(mandatory)*
 
-Os atores são o **agente de IA** (executa toda a verificação, análise e registro) e o
-**pesquisador** (autor do estudo, que lê os resultados e audita os registros). Não há usuário
+Os atores são o **agente de IA** (executa toda a verificação, análise e registro) e a
+**pesquisadora** (autora do estudo, que lê os resultados e audita os registros). Não há usuário
 final nesta feature.
 
 ### User Story 1 - Verificação completa com um único comando (Priority: P1)
@@ -80,10 +92,12 @@ etapa identificada.
 
 ### User Story 2 - Análise de qualidade local com escopo correto (Priority: P2)
 
-O agente executa a análise no SonarQube local, sem intervenção manual além da disponibilidade do
-servidor local, e obtém resultados separados para dois escopos: **app** (código da aplicação,
+O agente executa a análise no SonarQube local e obtém resultados separados para dois escopos: **app** (código da aplicação,
 base da comparação com o braço de vibe coding) e **scripts** (automação da infraestrutura, dado
 complementar), com a cobertura de testes importada do relatório gerado na User Story 1.
+A análise em si não exige intervenção manual. Os únicos passos manuais são da pesquisadora e são
+feitos uma vez, antes da primeira análise: deixar o servidor local disponível e gerar o token de
+acesso na interface do SonarQube, fornecendo-o ao agente por variável de ambiente (FR-009).
 
 **Why this priority**: as métricas SonarQube são o principal dado de qualidade do estudo
 (Princípio V); um escopo errado (dependências, testes, arquivos gerados, ou scripts misturados ao
@@ -107,11 +121,13 @@ que a cobertura reportada corresponde ao relatório local.
 
 ### User Story 3 - Registro auditável de métricas de IA e de qualidade (Priority: P3)
 
-Ao fim de cada etapa do desenvolvimento (constitution, specify, clarify, plan, tasks, analyze,
-implement e cada rodada de correção), o agente acrescenta ao arquivo de métricas da feature uma
-nova linha com tokens (entrada, saída, cache de leitura e de escrita), custo, número de prompts e
-número de rodadas de correção da etapa, extraídos do relatório de uso do ccusage. Ao fim de
-`implement` e de cada rodada de correção, acrescenta também uma linha com os resultados do
+Depois que a sessão de cada etapa do desenvolvimento termina (constitution, specify, clarify,
+plan, tasks, analyze, implement e cada etapa `correcao-N`), o agente, numa sessão de registro
+dedicada, acrescenta ao arquivo de métricas da feature uma nova linha com tokens (entrada, saída,
+cache de leitura e de escrita), custo, número de prompts e número de rodadas de correção da etapa,
+extraídos do relatório de uso do ccusage. O registro fica para depois do fim da sessão porque só
+então o total da sessão no ccusage é final. Ao fim de `implement` e de cada etapa `correcao-N`,
+ainda dentro da própria sessão, o agente acrescenta também uma linha com os resultados do
 SonarQube. A primeira medição SonarQube é a linha de base, registrada antes de qualquer correção.
 
 **Why this priority**: viabiliza a rastreabilidade exigida pelo Princípio VI; depende das User
@@ -125,7 +141,8 @@ coincidem com o relatório de sessões do ccusage para a sessão registrada.
 
 1. **Given** um arquivo de métricas com N linhas, **When** o agente registra uma medição, **Then**
    o arquivo passa a ter N+1 linhas e as N linhas anteriores ficam inalteradas.
-2. **Given** uma etapa concluída, **When** a linha de IA é registrada, **Then** tokens e custo são
+2. **Given** uma etapa concluída e sua sessão encerrada, **When** a linha de IA é registrada numa
+   sessão de registro, **Then** tokens e custo são
    idênticos aos totais da sessão da etapa no relatório de sessões do ccusage, e a linha identifica
    o ID da sessão, a versão do ccusage e o modelo usado.
 3. **Given** o ccusage indisponível ou sem dados para a sessão, **When** o agente tenta
@@ -133,8 +150,11 @@ coincidem com o relatório de sessões do ccusage para a sessão registrada.
    estima valores.
 4. **Given** a primeira análise SonarQube da feature, **When** ela é concluída, **Then** é
    registrada como linha de base antes de qualquer alteração de código motivada por ela.
-5. **Given** uma rodada de correção concluída, **When** a nova análise termina, **Then** uma nova
+5. **Given** uma etapa `correcao-N` concluída, **When** a nova análise termina, **Then** uma nova
    linha SonarQube é acrescentada, permitindo comparar com a linha de base.
+6. **Given** uma sessão de registro encerrada, **When** ela é registrada por uma sessão de
+   registro posterior, **Then** a linha tem etapa `registro` e o consolidado a soma em seção de
+   custo de medição, fora dos totais das etapas.
 
 ---
 
@@ -156,6 +176,13 @@ coincidem com o relatório de sessões do ccusage para a sessão registrada.
 - A análise SonarQube falha no meio: nenhuma linha parcial é registrada.
 - Segredos (token de acesso ao SonarQube) nunca aparecem no arquivo de métricas, na saída
   registrada nem em arquivos versionados.
+- Sem rede depois do primeiro carregamento: a página do esqueleto abre a partir do cache do
+  service worker.
+- Uma nova versão gerada é publicada: o service worker guarda a versão nova e apaga o cache da
+  anterior; não ficam duas versões misturadas no cache.
+- A última sessão de registro de uma feature não tem sessão de registro seguinte dentro da
+  feature: ela é registrada pela primeira sessão de registro posterior (da feature seguinte ou do
+  fechamento do estudo), no arquivo de métricas da feature de origem.
 
 ## Requirements *(mandatory)*
 
@@ -199,19 +226,41 @@ coincidem com o relatório de sessões do ccusage para a sessão registrada.
   número de rodadas de correção, versão do ccusage, ID da sessão do Claude Code e o tipo de
   registro ("no momento" ou "retroativo").
 - **FR-011a**: Cada etapa MUST ser executada em uma sessão nova e exclusiva do Claude Code; os
-  tokens e o custo da etapa MUST ser o total dessa sessão no relatório de sessões do ccusage. Uma
-  rodada de correção conta como etapa própria, em sessão própria.
+  tokens e o custo da etapa MUST ser o total dessa sessão (ou a soma das sessões, quando a etapa
+  continua em outra) no relatório de sessões do ccusage. A linha de IA da etapa MUST ser gravada
+  depois que a última sessão da etapa termina, numa sessão de registro (FR-011b), e nunca dentro
+  da sessão que está sendo medida.
+- **FR-011b**: Uma **sessão de registro** é uma sessão do Claude Code aberta só para registrar
+  medições de sessões já encerradas; ela MUST NOT conter trabalho de nenhuma etapa. O custo dela é
+  **custo de medição**: é registrado com etapa `registro` (com zero rodadas de correção) pela
+  sessão de registro seguinte e MUST ficar fora dos totais das etapas e da comparação do estudo.
+  A última sessão de registro de uma feature é registrada pela primeira sessão de registro
+  posterior, no arquivo da feature de origem.
+- **FR-011c**: Um **prompt de correção** é um prompt que pede ao agente para corrigir defeito,
+  erro de build ou teste, violação da constituição ou apontamento de análise (SonarQube ou
+  `/speckit-analyze`) em artefato já gerado; ele corresponde à "rodada de correção" do Princípio
+  VI e é contado na coluna de rodadas de correção da etapa em que ocorre. Uma **etapa
+  `correcao-N`** é uma sessão própria, aberta depois do fim de `implement`, para tratar um portão
+  de qualidade reprovado (comando único, Quality Gate ou verificação de rede/offline); ela tem pelo
+  menos um prompt de correção e termina com uma medição SonarQube. Prompts de correção feitos
+  durante outra etapa (por exemplo, corrigir um teste durante `implement`) não abrem uma etapa
+  `correcao-N`.
 - **FR-012**: Tokens e custo MUST ser extraídos do relatório do ccusage; valores estimados,
   arredondados ou digitados manualmente MUST NOT ser registrados. Na ausência de dados, nenhuma
   linha é gravada.
 - **FR-013**: O número de prompts MUST ser a contagem de mensagens do usuário na etapa, obtida do
-  registro da sessão; rodadas de correção MUST seguir a definição do Princípio VI.
+  registro da sessão; o número de rodadas de correção MUST ser o número de prompts de correção
+  (FR-011c) da etapa.
 - **FR-014**: Cada linha SonarQube MUST conter: data/hora, etapa/rodada, escopo (app ou scripts),
   identificação da análise,
   bugs, vulnerabilidades, code smells, duplicação (%), complexidade ciclomática (total e máxima por
   função), complexidade cognitiva (total e máxima por função), dívida técnica em minutos, nota de
-  manutenibilidade e situação do Quality Gate.
-- **FR-015**: Os valores SonarQube MUST ser lidos do servidor pelo agente, não transcritos à mão.
+  manutenibilidade e situação do Quality Gate. Como o SonarQube não expõe a complexidade máxima
+  por função, as duas colunas de máximo por função MUST ser calculadas pelo agente com o ESLint,
+  usando as regras `complexity` e `sonarjs/cognitive-complexity` (a mesma implementação da regra
+  cognitiva do SonarQube) sobre os mesmos arquivos do escopo.
+- **FR-015**: Os demais valores SonarQube MUST ser lidos do servidor pelo agente. Nenhum valor,
+  do servidor ou do ESLint, é transcrito à mão.
 - **FR-016**: Toda medição MUST ser acrescentada como nova linha; linhas existentes MUST NOT ser
   alteradas, reordenadas ou apagadas.
 - **FR-017**: A primeira medição SonarQube de cada escopo em cada feature MUST ser marcada como
@@ -221,17 +270,27 @@ coincidem com o relatório de sessões do ccusage para a sessão registrada.
   todas as features e a última medição SonarQube de cada escopo de cada feature, gerado a partir
   dos arquivos das features. O consolidado MUST apresentar as métricas do escopo app em seção
   própria, identificada como a base da comparação com o braço de vibe coding; as do escopo scripts
-  ficam em seção separada, como dado complementar.
+  ficam em seção separada, como dado complementar. O custo das sessões de registro (FR-011b) MUST
+  ficar em uma terceira seção, "custo de medição", fora das somas por feature e do total geral das
+  etapas.
 
 **Escopo**
 
 - **FR-019**: Esta feature MUST NOT implementar telas ou funcionalidades de controle parental;
   apenas o esqueleto mínimo necessário para que a geração da versão final e a análise tenham o que
-  processar.
+  processar, mais o suporte offline do FR-021.
 - **FR-020**: Esta feature MUST registrar as próprias etapas no seu arquivo de métricas. Todas as
   etapas ocorridas antes de a infraestrutura de registro existir (constitution, specify, clarify,
-  plan, tasks e o início de implement) MUST ser registradas retroativamente a partir dos dados
-  históricos do ccusage, cada linha marcada como "retroativo" e com o(s) ID(s) de sessão de origem.
+  plan, tasks e analyze) MUST ser registradas retroativamente a partir dos dados históricos do
+  ccusage, cada linha marcada como "retroativo" e com o(s) ID(s) de sessão de origem. A etapa
+  analyze inclui a sessão da análise e a sessão em que os apontamentos foram corrigidos nos
+  artefatos. A etapa implement não é retroativa: é registrada numa sessão de registro depois que
+  termina.
+- **FR-021**: O app MUST funcionar offline depois do primeiro carregamento (Princípio II). A
+  versão final MUST incluir um manifest de aplicação web e um service worker que guarda em cache
+  todos os arquivos da versão gerada e os serve a partir do cache sem rede. O service worker MUST
+  NOT fazer requisições a origens diferentes da do próprio app. Ao publicar uma nova versão, o
+  cache da versão anterior MUST ser substituído.
 
 ### Key Entities
 
@@ -244,8 +303,13 @@ coincidem com o relatório de sessões do ccusage para a sessão registrada.
 - **Medição SonarQube**: resultados de uma análise de um escopo, ligados a uma etapa ou rodada; a
   primeira de cada escopo é a
   linha de base.
-- **Rodada de correção**: prompt que pede correção de defeito, falha de verificação, violação da
-  constituição ou apontamento da análise em artefato já gerado.
+- **Prompt de correção**: prompt que pede correção de defeito, falha de verificação, violação da
+  constituição ou apontamento de análise em artefato já gerado; é a "rodada de correção" do
+  Princípio VI, contada na etapa em que ocorre (FR-011c).
+- **Etapa correcao-N**: sessão própria, depois do fim de implement, para tratar um portão de
+  qualidade reprovado; termina com medição SonarQube (FR-011c).
+- **Sessão de registro**: sessão dedicada ao registro de medições; seu custo é custo de medição,
+  reportado à parte (FR-011b).
 - **Arquivo de métricas**: registro somente de acréscimo por feature; o consolidado agrega todos.
 
 ## Success Criteria *(mandatory)*
@@ -268,18 +332,24 @@ coincidem com o relatório de sessões do ccusage para a sessão registrada.
   anterior a qualquer rodada de correção.
 - **SC-008**: Uma verificação automatizada confirma que nenhum arquivo versionado nem o arquivo de
   métricas contêm o token de acesso ao SonarQube.
+- **SC-009**: Um teste automatizado confirma que a lista de cache do service worker contém 100%
+  dos arquivos da versão gerada, e o checklist de aceitação confirma que, com o servidor local
+  parado depois do primeiro carregamento, a página do esqueleto recarrega a partir do cache.
 
 ## Assumptions
 
 - Não existe feature anterior: esta é a feature 001, que cria a infraestrutura e a usa em si
   mesma. A frase "usa a infraestrutura da feature anterior" foi entendida como "esta feature aplica
   a própria infraestrutura às suas etapas" (FR-020).
-- O SonarQube local (edição Community) roda na máquina do pesquisador e está acessível ao agente;
-  a instalação do servidor pode ser feita pelo agente, mas fica fora dos critérios de sucesso.
+- O SonarQube local (edição Community) roda na máquina da pesquisadora e está acessível ao
+  agente; a instalação do servidor pode ser feita pelo agente, mas fica fora dos critérios de
+  sucesso. A geração do token de acesso na interface do SonarQube é um passo manual da
+  pesquisadora, feito uma vez; o token chega ao agente só por variável de ambiente.
 - O ccusage lê os registros locais de uso do Claude Code; o custo registrado é o custo calculado e
   reportado pelo ccusage, sem ajuste.
-- O pesquisador abre uma sessão nova do Claude Code para cada etapa do Spec Kit a partir de
-  agora; isso também evita que uma etapa herde o contexto acumulado da anterior.
+- A pesquisadora abre uma sessão nova do Claude Code para cada etapa do Spec Kit a partir de
+  agora, e outra para cada registro de medições; isso também evita que uma etapa herde o contexto
+  acumulado da anterior.
 - O estudo compara este desenvolvimento guiado por especificação com um braço de vibe coding; a
   comparação principal usa somente as métricas do escopo app. Os scripts de automação também
   passam pelo comando único (tipos, padrões e testes).

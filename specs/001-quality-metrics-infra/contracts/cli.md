@@ -9,10 +9,10 @@ Executa, nesta ordem, parando na primeira falha:
 
 | # | Etapa (`<nome>`) | Comando interno | Código de saída se falhar |
 |---|---|---|---|
-| 1 | `tipos` | `tsc --noEmit -p tsconfig.json` e `tsc --noEmit -p scripts/tsconfig.json` | 1 |
+| 1 | `tipos` | `tsc --noEmit -p tsconfig.json`, `tsc --noEmit -p scripts/tsconfig.json` e `tsc --noEmit -p src/pwa/tsconfig.json` | 1 |
 | 2 | `padroes` | `eslint . --max-warnings=0` e `prettier --check .` | 2 |
 | 3 | `testes` | `vitest run --coverage` | 3 |
-| 4 | `build` | `next build` (gera `out/`) | 4 |
+| 4 | `build` | `next build` (gera `out/`) e `node scripts/pwa/generate-sw.ts` (gera `out/sw.js`) | 4 |
 
 - Antes de cada etapa: `VERIFY ▶ etapa=<nome>`.
 - Falha: `VERIFY FALHOU: etapa=<nome> (código <n>)` na saída de erro; etapas seguintes não rodam.
@@ -53,8 +53,11 @@ Em qualquer falha dos passos 1–5 nenhuma linha é gravada.
 
 - Consulta `npx -y ccusage@20.0.46 session --json --offline --id <id>` para cada ID e lê a
   transcrição de cada sessão para contar prompts.
-- Sem `--correcoes`, lista os prompts encontrados e sai com código 20 pedindo o valor (o agente
-  classifica e roda de novo).
+- Roda numa sessão de registro (FR-011b), depois que a sessão da etapa terminou.
+- `--etapa` aceita os nomes da entidade Etapa do [data-model.md](../data-model.md), incluindo
+  `registro` (sessão de registro anterior, sempre com `--correcoes 0`).
+- Sem `--correcoes`, lista os prompts encontrados e sai com código 20 pedindo o número de prompts
+  de correção (FR-011c); o agente classifica e roda de novo.
 - Recusa (código 21) a sessão ativa e sessões já registradas na feature.
 - ccusage indisponível ou sessão inexistente → código 22, nada gravado.
 - Feature alvo: a do diretório `specs/` resolvida pelo Spec Kit (`SPECIFY_FEATURE` ou a mais
@@ -63,11 +66,14 @@ Em qualquer falha dos passos 1–5 nenhuma linha é gravada.
 ## `npm run metrics:check` (SC-005, SC-006 auxiliar)
 
 Para cada linha de IA de todas as features, consulta o ccusage (mesma versão da linha, `--offline`)
-e compara tokens e custo. Código 0 se 100% idênticos; senão lista as divergências e sai com 30.
+e compara tokens e custo. Código 0 se 100% idênticos; senão lista as divergências
+(feature/linha/coluna/esperado/obtido) e sai com 30. Falha do ccusage numa linha conta como
+divergência, com o motivo no lugar do valor obtido.
 
 ## `npm run metrics:consolidar` (FR-018)
 
-Regenera `docs/metricas/consolidado.md`. Código 0; código 40 se algum arquivo de métricas estiver
+Regenera `docs/metricas/consolidado.md`, com as linhas `registro` em seção própria de custo de
+medição, fora dos totais das etapas. Código 0; código 40 se algum arquivo de métricas estiver
 fora do formato.
 
 ## Variáveis de ambiente

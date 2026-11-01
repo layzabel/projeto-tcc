@@ -27,8 +27,11 @@ lista os arquivos de cada projeto. A verificação passa somente se:
 
 - todo arquivo do escopo **app** começa com `src/` e todo arquivo do escopo **scripts** começa com
   `scripts/`;
-- nenhum arquivo casa com `node_modules/`, `.test.`, `.spec.`, `tests/`, `.next/`, `out/`,
-  `coverage/`, `specs/`, `.specify/`, `docs/`;
+- nenhum segmento do caminho (após normalizar `\` para `/` e separar por `/`) é igual a
+  `node_modules`, `tests`, `.next`, `out`, `coverage`, `.scannerwork`, `specs`, `.specify` ou
+  `docs`, e nenhum nome de arquivo contém `.test.` ou `.spec.`. A comparação é por segmento
+  inteiro, não por substring: `src/checkout/x.ts` e `scripts/about/y.ts` passam;
+  `src/out/x.ts` falha;
 - a interseção das duas listas é vazia;
 - cada lista tem ≥ 1 arquivo.
 
