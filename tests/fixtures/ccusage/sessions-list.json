@@ -1,0 +1,42 @@
+{
+  "session": [
+    {
+      "agent": "claude",
+      "cacheCreationTokens": 21000,
+      "cacheReadTokens": 150000,
+      "inputTokens": 8,
+      "metadata": {
+        "lastActivity": "2026-09-30T22:35:23.994Z"
+      },
+      "modelBreakdowns": [],
+      "modelsUsed": ["claude-opus-5-5", "claude-haiku-5-5"],
+      "outputTokens": 5000,
+      "period": "22222222-2222-4222-8222-222222222222",
+      "totalCost": 31.22584819999999,
+      "totalTokens": 176008
+    },
+    {
+      "agent": "claude",
+      "cacheCreationTokens": 14000,
+      "cacheReadTokens": 60000,
+      "inputTokens": 4,
+      "metadata": {
+        "lastActivity": "2026-10-31T13:54:46.270Z"
+      },
+      "modelBreakdowns": [],
+      "modelsUsed": ["claude-opus-5-5"],
+      "outputTokens": 500,
+      "period": "33333333-3333-4333-8333-333333333333",
+      "totalCost": 0.1418614,
+      "totalTokens": 74504
+    }
+  ],
+  "totals": {
+    "cacheCreationTokens": 35000,
+    "cacheReadTokens": 210000,
+    "inputTokens": 12,
+    "outputTokens": 5500,
+    "totalCost": 31.36770959999999,
+    "totalTokens": 250512
+  }
+}

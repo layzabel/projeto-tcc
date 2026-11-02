@@ -1,0 +1,17 @@
+services:
+  sonarqube:
+    image: sonarqube:community
+    ports:
+      - '9000:9000'
+    environment:
+      # banco H2 embutido (sem SONAR_JDBC_URL): uso local de avaliação (R7)
+      SONAR_TELEMETRY_ENABLE: 'false'
+    volumes:
+      - sonarqube_data:/opt/sonarqube/data
+      - sonarqube_extensions:/opt/sonarqube/extensions
+      - sonarqube_logs:/opt/sonarqube/logs
+
+volumes:
+  sonarqube_data:
+  sonarqube_extensions:
+  sonarqube_logs:

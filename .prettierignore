@@ -1,0 +1,10 @@
+node_modules/
+.next/
+out/
+coverage/
+.scannerwork/
+package-lock.json
+specs/
+.specify/
+.claude/
+docs/metricas/
