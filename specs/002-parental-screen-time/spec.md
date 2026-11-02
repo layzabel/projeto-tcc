@@ -19,6 +19,27 @@ bloqueio, acesso adulto, painel do responsável, dados e privacidade, adequaçã
 critérios de sucesso devem ser verificáveis por testes automatizados ou pelo checklist de
 aceitação, sem testes com usuários.
 
+## Clarifications
+
+### Session 2026-11-01
+
+- Q: Como a aba Registro deve tratar a "sequência de dias seguidos de uso", dado que o Princípio
+  IV proíbe sequências/streaks? → A: Substituída por "dias com uso nos últimos 7 dias" (quantidade
+  de dias, entre os 7 exibidos no gráfico, com uso maior que zero); não há sequência em nenhuma
+  tela.
+- Q: O responsável pode liberar a tela bloqueada antes da virada do dia? → A: Não. O bloqueio é
+  mantido sem liberação manual; termina somente na virada do dia.
+- Q: Os valores definidos em Assumptions (limiares de céu, vaga-lumes e humor, teto de 5 s por
+  intervalo, média ÷ 7, senha sem bloqueio por tentativas etc.) estão aceitos? → A: Sim, todos
+  aceitos como definidos.
+- Q: O campo da criança aceita "nome ou apelido" ou só apelido, dado que o Princípio I proíbe
+  nome completo? → A: "Apelido ou primeiro nome" (opcional, até 18 caracteres), com orientação
+  visível para não informar o nome completo; sem validação automática do conteúdo.
+- Q: Como a aplicação incentiva o uso com um adulto por perto (Princípio III)? → A: Orientação de
+  uso supervisionado ao responsável na tela de conclusão da configuração e na aba Hoje, e convite
+  do mascote ("chame um adulto para brincar junto") na primeira abertura do mundo da criança em
+  cada dia, no máximo uma vez por dia.
+
 ## User Scenarios & Testing *(mandatory)*
 
 Os atores são o **responsável** (adulto que configura e acompanha) e a **criança** de 2 a 5 anos,
@@ -33,7 +54,7 @@ configuração inicial, acesso à área dos adultos (senha e recuperação) e pa
 
 No primeiro uso, o responsável vê as boas-vindas com o propósito da aplicação, lê o texto de
 consentimento para o tratamento dos dados da criança e o aceita. Em seguida informa, se quiser, o
-nome ou apelido da criança, escolhe o limite diário (15 a 60 minutos, padrão 60, com a
+apelido ou primeiro nome da criança (com orientação para não informar o nome completo), escolhe o limite diário (15 a 60 minutos, padrão 60, com a
 recomendação da SBP exibida), cria uma senha de 4 números com confirmação e chega à tela de
 conclusão, que leva ao mundo da criança.
 
@@ -52,7 +73,8 @@ ficam salvos e que a aplicação abre no mundo da criança ao final.
    não avança e nenhum dado é gravado no aparelho.
 3. **Given** a tela de consentimento, **When** o responsável aceita, **Then** o aceite é gravado
    com data, hora e versão do texto antes de qualquer outro dado.
-4. **Given** o campo de nome, **When** o responsável digita mais de 18 caracteres, **Then** o
+4. **Given** o campo de apelido, **When** a tela abre, **Then** a orientação para não informar o
+   nome completo está visível; **When** o responsável digita mais de 18 caracteres, **Then** o
    campo não aceita os caracteres excedentes; **When** deixa vazio, **Then** pode avançar.
 5. **Given** a escolha do limite, **When** a tela abre, **Then** o valor inicial é 60 minutos, a
    recomendação da SBP aparece e só são selecionáveis os valores 15, 20, 25, ..., 60.
@@ -84,7 +106,10 @@ contado, o estado visual, o aviso de "falta pouco" e a persistência após recar
 **Acceptance Scenarios**:
 
 1. **Given** o mundo da criança com nome configurado, **When** a tela abre, **Then** o mascote
-   cumprimenta a criança pelo nome; sem nome, o cumprimento é genérico.
+   cumprimenta a criança pelo nome; sem nome, o cumprimento é genérico. Se for a primeira
+   abertura do dia, o mascote também convida a criança a chamar um adulto para brincar junto (em
+   voz alta se a voz estiver ligada); nas aberturas seguintes do mesmo dia, o convite não se
+   repete.
 2. **Given** o mundo da criança, **When** a criança toca no botão Mascote, **Then** o mascote
    responde com uma frase carinhosa sorteada de um conjunto fixo.
 3. **Given** limite de 60 minutos, **When** 12 minutos são consumidos, **Then** um dos cinco
@@ -224,8 +249,8 @@ o efeito correspondente nas telas infantis e no armazenamento.
 
 ### User Story 6 - Registro, exportação e direitos sobre os dados (Priority: P3)
 
-Na aba Registro, o responsável vê um gráfico de barras dos últimos 7 dias, a média diária, a
-sequência de dias seguidos de uso, o total da semana e o histórico dos últimos 30 dias, e pode
+Na aba Registro, o responsável vê um gráfico de barras dos últimos 7 dias, a média diária, os
+dias com uso nos últimos 7 dias, o total da semana e o histórico dos últimos 30 dias, e pode
 exportar todos os dados em arquivo.
 
 **Why this priority**: acompanhamento e direito de acesso aos dados (LGPD); útil, mas não
@@ -239,8 +264,9 @@ os valores exibidos e o conteúdo do arquivo exportado com os valores esperados.
 1. **Given** um histórico conhecido, **When** a aba Registro abre, **Then** o gráfico mostra uma
    barra por dia dos últimos 7 dias (hoje incluído), em minutos, com zero nos dias sem uso.
 2. **Given** um histórico conhecido, **When** o resumo é exibido, **Then** o total da semana é a
-   soma dos 7 dias, a média é esse total dividido por 7 e a sequência é o número de dias seguidos
-   com uso maior que zero terminando hoje (ou ontem, se hoje ainda não houve uso).
+   soma dos 7 dias, a média é esse total dividido por 7 e os dias com uso são a quantidade, entre
+   esses 7 dias, com uso maior que zero (de 0 a 7); nenhuma sequência de dias seguidos é
+   exibida.
 3. **Given** dias com mais de 30 dias de idade armazenados, **When** a aplicação abre ou o dia
    vira, **Then** esses dias são apagados e não aparecem no histórico.
 4. **Given** "Exportar", **When** o responsável aciona, **Then** um arquivo é salvo no aparelho
@@ -345,8 +371,8 @@ verificando cenário, frase, efeito e avanço em cada uma.
   aceite explícito do responsável antes de gravar qualquer dado.
 - **FR-003**: O aceite MUST ser gravado com data, hora e versão do texto de consentimento. Sem
   aceite, nenhum dado é gravado e a configuração não avança.
-- **FR-004**: A configuração MUST coletar: nome ou apelido da criança (opcional, até 18
-  caracteres), limite diário (15 a 60 minutos em passos de 5, padrão 60, com a recomendação da SBP
+- **FR-004**: A configuração MUST coletar: apelido ou primeiro nome da criança (opcional, até 18
+  caracteres, com orientação visível de não informar o nome completo, conforme o Princípio I), limite diário (15 a 60 minutos em passos de 5, padrão 60, com a recomendação da SBP
   exibida) e senha de 4 dígitos numéricos digitada duas vezes, e MUST terminar numa tela de
   conclusão que leva ao mundo da criança.
 
@@ -357,6 +383,11 @@ verificando cenário, frase, efeito e avanço em cada uma.
   sorteada de um conjunto fixo de pelo menos 5 frases).
 - **FR-006**: O mascote MUST cumprimentar a criança pelo nome quando houver nome; caso contrário,
   MUST usar um cumprimento genérico.
+- **FR-006a**: Na primeira abertura do mundo da criança em cada dia, o mascote MUST convidar a
+  criança a chamar um adulto para brincar junto (balão e, com voz ligada, áudio), no máximo uma vez
+  por dia; o convite MUST NOT bloquear nem atrasar o uso. A tela de conclusão da configuração e a
+  aba Hoje MUST exibir ao responsável uma orientação de uso supervisionado e compartilhado, em
+  linha com a SBP e o Princípio III.
 - **FR-007**: O tempo restante MUST ser comunicado nas telas infantis sem números, por: fase do
   céu (dia enquanto restam mais de 2/3 do limite, tarde entre 2/3 e 1/3, anoitecer abaixo de 1/3),
   posição do sol, estrelas no anoitecer e cinco vaga-lumes, apagando-se um a cada 20% do limite
@@ -478,8 +509,8 @@ verificando cenário, frase, efeito e avanço em cada uma.
 - **FR-039**: "Apagar todos os dados" MUST remover tudo o que a aplicação guarda no aparelho,
   inclusive consentimento e tempo usado hoje, e reiniciar na configuração inicial.
 - **FR-040**: A aba Registro MUST mostrar: gráfico de barras dos últimos 7 dias (hoje incluído) em
-  minutos; média diária (total dos 7 dias ÷ 7); sequência de dias seguidos com uso maior que zero
-  terminando hoje, ou ontem se hoje ainda não houve uso; total da semana; histórico dos últimos 30
+  minutos; média diária (total dos 7 dias ÷ 7); dias com uso nos últimos 7 dias (quantidade, de 0 a 7,
+  de dias desse período com uso maior que zero); total da semana; histórico dos últimos 30
   dias com data e minutos usados; e a ação de exportar.
 - **FR-041**: A exportação MUST gerar, no próprio aparelho, um arquivo em formato estruturado e
   legível contendo todos os dados guardados (consentimento, nome, ajustes, dia atual, histórico),
@@ -487,9 +518,9 @@ verificando cenário, frase, efeito e avanço em cada uma.
 
 **Dados e privacidade**
 
-- **FR-042**: A aplicação MUST guardar somente: registro do consentimento, nome ou apelido
-  (opcional), ajustes, senha em forma não reversível, dia atual (data, tempo usado, limite
-  vigente, se o aviso tocou, se o encerramento começou ou terminou) e histórico dos últimos 30
+- **FR-042**: A aplicação MUST guardar somente: registro do consentimento, apelido ou primeiro
+  nome (opcional), ajustes, senha em forma não reversível, dia atual (data, tempo usado, limite
+  vigente, se o aviso tocou, se o convite de supervisão foi feito, se o encerramento começou ou terminou) e histórico dos últimos 30
   dias (data, total usado, limite vigente, se o encerramento aconteceu). Nenhum outro dado da
   criança ou do aparelho é coletado.
 - **FR-043**: A senha MUST ser guardada só em forma derivada não reversível, nunca em texto
@@ -530,11 +561,12 @@ verificando cenário, frase, efeito e avanço em cada uma.
 ### Key Entities
 
 - **Consentimento**: aceite do responsável; data e hora, versão do texto aceito.
-- **Perfil da criança**: nome ou apelido opcional (até 18 caracteres). Um único por aparelho.
+- **Perfil da criança**: apelido ou primeiro nome opcional (até 18 caracteres; nunca o nome
+  completo). Um único por aparelho.
 - **Ajustes**: limite diário de hoje, limite pendente para amanhã, aviso antes de acabar, estilo
   do encerramento, sons, voz, menos animação.
 - **Credencial do adulto**: senha de 4 dígitos guardada só em forma derivada não reversível.
-- **Dia atual**: data local, tempo usado (em segundos), limite vigente, aviso já tocado, estado do
+- **Dia atual**: data local, tempo usado (em segundos), limite vigente, aviso já tocado, convite de supervisão já feito, estado do
   encerramento (não iniciado, em andamento, concluído) e se foi pedido pelo responsável.
 - **Registro diário (histórico)**: data, total usado, limite vigente, se o encerramento
   aconteceu. Até 30 registros.
@@ -566,7 +598,7 @@ relógio e armazenamento controlados) ou pelo checklist de aceitação; não há
   área do adulto concede tempo extra, e a tela é liberada automaticamente na virada do dia.
 - **SC-008**: O acesso adulto só abre após 3 segundos contínuos de pressão e senha correta; a
   recuperação por multiplicação troca a senha sem usar dado pessoal.
-- **SC-009**: Os valores da aba Registro (7 barras, média, sequência, total, 30 dias) coincidem
+- **SC-009**: Os valores da aba Registro (7 barras, média, dias com uso nos últimos 7 dias, total, 30 dias) coincidem
   com os valores esperados para um histórico de teste conhecido, e dias com mais de 30 dias não
   existem no armazenamento.
 - **SC-010**: O arquivo exportado contém todos os dados guardados e não contém a senha nem seu
@@ -581,6 +613,9 @@ relógio e armazenamento controlados) ou pelo checklist de aceitação; não há
   telas do adulto nem de contraste nas telas infantis.
 - **SC-014**: O comando único de verificação da `001-quality-metrics-infra` termina com sucesso e
   o Quality Gate do SonarQube está aprovado ao final da feature.
+- **SC-015**: Em 100% dos testes, o convite do mascote para chamar um adulto ocorre exatamente uma
+  vez por dia (na primeira abertura do mundo da criança), inclusive após recargas, e a orientação
+  de uso supervisionado está visível na conclusão da configuração e na aba Hoje.
 
 ## Assumptions
 
@@ -593,11 +628,11 @@ relógio e armazenamento controlados) ou pelo checklist de aceitação; não há
   segundos. Como avanços de data para o futuro são
   indistinguíveis de uso legítimo, adiantar a data do aparelho vira o dia; o público adulto é o
   único capaz de fazê-lo e a ação não aumenta o limite diário.
-- **Sequência no painel**: a "sequência de dias seguidos de uso" aparece só no painel do adulto,
-  como informação; não é exibida à criança nem recompensada, por isso não é tratada como padrão de
-  engajamento proibido pelo Princípio IV.
+- **Sem sequências**: em vez de "sequência de dias seguidos de uso", o painel mostra "dias com uso
+  nos últimos 7 dias", cumprindo a proibição de sequências/streaks do Princípio IV.
 - **Bloqueio sem liberação**: o Princípio III admite liberação explícita pelo responsável, mas a
-  descrição exclui tempo extra e liberação manual; vale a regra mais restritiva da descrição.
+  descrição exclui tempo extra e liberação manual; vale a regra mais restritiva da descrição
+  (confirmado na clarificação de 2026-11-01).
 - **Períodos sem tela** (SHOULD do Princípio III) ficam fora desta feature.
 - **Faixa etária**: não é coletada, pois a aplicação já é destinada a 2–5 anos (minimização).
 - **Senha**: não há bloqueio por tentativas erradas; a senha protege contra a criança, não contra
