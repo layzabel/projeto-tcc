@@ -341,7 +341,7 @@ avanço.
 depois de encerrada a sessão de implementação, para que os tokens e o custo do `implement` estejam
 completos na fonte verificável.
 
-- [ ] T118 Em sessão de registro posterior ao `implement`, registrar em specs/002-parental-screen-time/metricas-ia.md uma linha por etapa da feature 002 — `specify`, `clarify`, `plan`, `tasks`, `analyze`, `implement` e cada `correcao-N` que tiver ocorrido — com `npm run metrics:ia -- --etapa <etapa> --sessao <id>`; quando a fonte não separar etapas da mesma sessão, registrar uma única linha agregada identificando explicitamente as etapas incluídas (por exemplo, "plan + tasks"), sem ratear nem estimar valores entre elas (Princípio VI); validar com `npm run metrics:check`, atualizar docs/metricas/consolidado.md com `npm run metrics:consolidar` e então marcar o item de métricas do critério de conclusão do [quickstart.md](quickstart.md)
+- [X] T118 Em sessão de registro posterior ao `implement`, registrar em specs/002-parental-screen-time/metricas-ia.md uma linha por etapa da feature 002 — `specify`, `clarify`, `plan`, `tasks`, `analyze`, `implement` e cada `correcao-N` que tiver ocorrido — com `npm run metrics:ia -- --etapa <etapa> --sessao <id>`; quando a fonte não separar etapas da mesma sessão, registrar uma única linha agregada identificando explicitamente as etapas incluídas (por exemplo, "plan + tasks"), sem ratear nem estimar valores entre elas (Princípio VI); validar com `npm run metrics:check`, atualizar docs/metricas/consolidado.md com `npm run metrics:consolidar` e então marcar o item de métricas do critério de conclusão do [quickstart.md](quickstart.md)
 
 ---
 

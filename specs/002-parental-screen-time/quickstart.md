@@ -104,4 +104,4 @@ posterior com `npm run metrics:ia -- --etapa <etapa> --sessao <id>`, e o consoli
 - [x] `toque.spec.ts` aprovado (≥ 64×64 px, 8 px, em 320/390/1280).
 - [x] `acessibilidade.spec.ts` aprovado.
 - [ ] Cenários 4 e 5 conferidos no celular.
-- [ ] `metricas-ia.md` com as linhas de IA das etapas e `docs/metricas/consolidado.md` atualizado.
+- [x] `metricas-ia.md` com as linhas de IA das etapas e `docs/metricas/consolidado.md` atualizado.

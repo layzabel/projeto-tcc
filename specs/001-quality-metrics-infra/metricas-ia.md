@@ -14,6 +14,7 @@ Fonte de tokens e custo: ccusage (relatório de sessões, `--offline`). Fonte de
 | 2026-11-01T22:24:14.503Z | analyze | claude-opus-5-5 | 108 | 137353 | 430095 | 4984606 | 7.1851732000000000 | 6 | 3 | 20.0.46 | 9431fdce-15b5-4d1a-b090-79c58980d84f,47e2ebba-af88-4288-9476-5749c413aa71,d9d15997-a6c4-4043-9381-a3aec0e67cc0 | retroativo | |
 | 2026-11-01T22:14:29.567Z | constitution | claude-opus-5-5 | 10 | 4031 | 27476 | 200807 | 0.34062939999999997 | 1 | 1 | 20.0.46 | 2bcb61a1-52a1-4037-907b-12a09ebad0ac | retroativo | emenda v1.0.1 |
 | 2026-11-02T00:21:59.694Z | implement | claude-opus-5-5 | 240 | 137665 | 251402 | 21030014 | 8.971478800000002 | 2 | 0 | 20.0.46 | 3010ee3d-e152-44cc-9c78-0b7bd859ae14 | no momento | |
+| 2026-11-02T00:30:55.167Z | registro | claude-opus-5-5 | 34 | 8072 | 33440 | 722969 | 0.5736897999999999 | 2 | 0 | 20.0.46 | d3826219-2afa-445d-9e89-b6418d7cfb1c | retroativo | |
 <!-- fim:ia -->
 
 ## Medições SonarQube
