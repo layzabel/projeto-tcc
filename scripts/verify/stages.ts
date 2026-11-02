@@ -3,8 +3,8 @@ import type { Exec } from '../lib/exec.ts';
 export type Command = { cmd: string; args: string[] };
 
 export type Stage = {
-  name: 'tipos' | 'padroes' | 'testes' | 'build';
-  code: 1 | 2 | 3 | 4;
+  name: 'tipos' | 'padroes' | 'testes' | 'build' | 'e2e';
+  code: 1 | 2 | 3 | 4 | 5;
   commands: Command[];
 };
 
@@ -43,6 +43,12 @@ export const STAGES: readonly Stage[] = [
       { cmd: 'npx', args: ['next', 'build'] },
       { cmd: 'node', args: ['scripts/pwa/generate-sw.ts'] },
     ],
+  },
+  {
+    // pré-requisito único na máquina: npx playwright install chromium (contracts/e2e.md)
+    name: 'e2e',
+    code: 5,
+    commands: [{ cmd: 'npx', args: ['playwright', 'test'] }],
   },
 ];
 

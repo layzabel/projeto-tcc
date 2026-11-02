@@ -98,10 +98,10 @@ posterior com `npm run metrics:ia -- --etapa <etapa> --sessao <id>`, e o consoli
 
 ## Critério de conclusão
 
-- [ ] `npm run verify` → `VERIFY OK: 5/5 etapas`.
+- [x] `npm run verify` → `VERIFY OK: 5/5 etapas`.
 - [ ] Quality Gate do SonarQube aprovado nos dois escopos; snapshot em `metricas-ia.md`.
 - [ ] Fixture `semRedeExterna` sem apontamentos e Cenário 6 conferido.
-- [ ] `toque.spec.ts` aprovado (≥ 64×64 px, 8 px, em 320/390/1280).
-- [ ] `acessibilidade.spec.ts` aprovado.
+- [x] `toque.spec.ts` aprovado (≥ 64×64 px, 8 px, em 320/390/1280).
+- [x] `acessibilidade.spec.ts` aprovado.
 - [ ] Cenários 4 e 5 conferidos no celular.
 - [ ] `metricas-ia.md` com as linhas de IA das etapas e `docs/metricas/consolidado.md` atualizado.

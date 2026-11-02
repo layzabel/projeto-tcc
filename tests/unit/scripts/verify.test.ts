@@ -17,10 +17,10 @@ function setup(failAt?: { cmd: string; args: string[] }) {
 }
 
 describe('runStages (SC-002)', () => {
-  it('executa as 4 etapas na ordem e retorna 0', async () => {
+  it('executa as 5 etapas na ordem e retorna 0', async () => {
     const { calls, exec, out, log } = setup();
     await expect(runStages(STAGES, exec, log)).resolves.toBe(0);
-    expect(STAGES.map((s) => s.name)).toEqual(['tipos', 'padroes', 'testes', 'build']);
+    expect(STAGES.map((s) => s.name)).toEqual(['tipos', 'padroes', 'testes', 'build', 'e2e']);
     expect(calls).toEqual(
       STAGES.flatMap((s) => s.commands.map((c) => [c.cmd, ...c.args].join(' '))),
     );
@@ -29,8 +29,9 @@ describe('runStages (SC-002)', () => {
       'VERIFY ▶ etapa=padroes',
       'VERIFY ▶ etapa=testes',
       'VERIFY ▶ etapa=build',
+      'VERIFY ▶ etapa=e2e',
     ]);
-    expect(out.at(-1)).toBe('VERIFY OK: 4/4 etapas');
+    expect(out.at(-1)).toBe('VERIFY OK: 5/5 etapas');
   });
 
   it.each(STAGES.map((stage, index) => [stage.name, index] as const))(
@@ -44,7 +45,7 @@ describe('runStages (SC-002)', () => {
       for (const command of later) {
         expect(calls).not.toContain([command.cmd, ...command.args].join(' '));
       }
-      expect(out).not.toContain('VERIFY OK: 4/4 etapas');
+      expect(out).not.toContain('VERIFY OK: 5/5 etapas');
     },
   );
 
@@ -55,5 +56,17 @@ describe('runStages (SC-002)', () => {
     const { err, log, exec } = setup(second);
     await expect(runStages(STAGES, exec, log)).resolves.toBe(4);
     expect(err).toContain('VERIFY FALHOU: etapa=build (código 4)');
+  });
+
+  it('etapa e2e roda o Playwright depois do build, com código 5', async () => {
+    const e2e = STAGES.at(-1)!;
+    expect(e2e).toEqual({
+      name: 'e2e',
+      code: 5,
+      commands: [{ cmd: 'npx', args: ['playwright', 'test'] }],
+    });
+    const { err, log, exec } = setup(e2e.commands[0]);
+    await expect(runStages(STAGES, exec, log)).resolves.toBe(5);
+    expect(err).toContain('VERIFY FALHOU: etapa=e2e (código 5)');
   });
 });

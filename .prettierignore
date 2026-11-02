@@ -8,3 +8,5 @@ specs/
 .specify/
 .claude/
 docs/metricas/
+test-results/
+playwright-report/

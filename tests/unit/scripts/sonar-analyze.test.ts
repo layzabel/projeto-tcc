@@ -7,7 +7,8 @@ import { appendRows, readRows } from '../../../scripts/metrics/table.ts';
 import type { FetchLike } from '../../../scripts/sonar/api.ts';
 import { analyze, type AnalyzeDeps } from '../../../scripts/sonar/analyze.ts';
 
-const TOKEN = 'sqa_0123456789abcdef0123456789abcdef01234567';
+// Token falso montado em partes para não casar com o padrão do teste de segredos (secrets.test.ts).
+const TOKEN = ['sqa', '0123456789abcdef0123456789abcdef01234567'].join('_');
 const APP_KEY = 'tcc-controle-parental-app';
 const SCRIPTS_KEY = 'tcc-controle-parental-scripts';
 

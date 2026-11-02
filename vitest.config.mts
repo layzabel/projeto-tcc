@@ -14,8 +14,8 @@ export default defineConfig({
         test: {
           name: 'app',
           environment: 'jsdom',
-          include: ['tests/unit/app/**/*.test.tsx'],
-          setupFiles: ['tests/setup/jest-dom.ts'],
+          include: ['tests/unit/app/**/*.test.ts', 'tests/unit/app/**/*.test.tsx'],
+          setupFiles: ['tests/setup/jest-dom.ts', 'tests/setup/cleanup.ts'],
         },
       },
       {
