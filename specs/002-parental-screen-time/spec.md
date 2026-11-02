@@ -520,7 +520,7 @@ verificando cenário, frase, efeito e avanço em cada uma.
 
 - **FR-042**: A aplicação MUST guardar somente: registro do consentimento, apelido ou primeiro
   nome (opcional), ajustes, senha em forma não reversível, dia atual (data, tempo usado, limite
-  vigente, se o aviso tocou, se o convite de supervisão foi feito, se o encerramento começou ou terminou) e histórico dos últimos 30
+  vigente, se o aviso tocou, se o convite de supervisão foi feito, se o encerramento começou ou terminou, se o encerramento foi pedido pelo responsável) e histórico dos últimos 30
   dias (data, total usado, limite vigente, se o encerramento aconteceu). Nenhum outro dado da
   criança ou do aparelho é coletado.
 - **FR-043**: A senha MUST ser guardada só em forma derivada não reversível, nunca em texto
@@ -584,8 +584,9 @@ relógio e armazenamento controlados) ou pelo checklist de aceitação; não há
   consentimento e nenhuma tela infantil é alcançável sem configuração concluída.
 - **SC-002**: Em simulação de 60 minutos de uso infantil intercalados com pausas (segundo plano,
   área do adulto), o tempo contado difere do tempo infantil visível real em no máximo 5 segundos.
-- **SC-003**: Saltos simulados no relógio do aparelho de +2 h, −1 h e +24 h alteram o tempo
-  usado em no máximo 5 segundos e nunca o reduzem.
+- **SC-003**: Saltos simulados no relógio do aparelho de +2 h e −1 h dentro do mesmo dia alteram
+  o tempo usado em no máximo 5 segundos e nunca o reduzem; um salto de +24 h arquiva o dia com o
+  tempo usado no máximo 5 segundos acima do anterior, e o novo dia começa em zero.
 - **SC-004**: Após recarga da aplicação no mesmo dia, o tempo usado é recuperado com perda máxima
   de 5 segundos em 100% dos testes; após virada da meia-noite, o novo dia começa em zero e o dia
   anterior aparece no histórico com os valores corretos.
