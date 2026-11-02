@@ -40,6 +40,12 @@ aceitação, sem testes com usuários.
   do mascote ("chame um adulto para brincar junto") na primeira abertura do mundo da criança em
   cada dia, no máximo uma vez por dia.
 
+### Session 2026-11-02
+
+- Q: Qual conta a recuperação de senha deve pedir? → A: Uma soma de dois números sorteados entre
+  20 e 49 (por exemplo, 37 + 48), no lugar da multiplicação de 2 × 1 dígitos; resposta errada gera
+  nova soma (FR-032).
+
 ## User Scenarios & Testing *(mandatory)*
 
 Os atores são o **responsável** (adulto que configura e acompanha) e a **criança** de 2 a 5 anos,
@@ -176,7 +182,7 @@ persistente após recarga e a liberação automática na virada do dia.
 
 O responsável segura um botão discreto por 3 segundos (com preenchimento visual), digita a senha
 de 4 números num teclado numérico próprio e entra no painel. Se esquecer a senha, resolve uma
-conta de multiplicação e cria uma nova senha.
+conta de soma e cria uma nova senha.
 
 **Why this priority**: impede que a criança altere ajustes ou encerre o controle (Constituição,
 Princípio I, bloqueio adulto); depende da configuração já existir.
@@ -194,7 +200,7 @@ verificando o destino de cada caminho.
    responsável abre e a contagem do tempo fica pausada.
 3. **Given** o teclado de senha, **When** uma senha errada é digitada, **Then** uma mensagem de
    erro aparece, o aparelho vibra (quando houver suporte) e os dígitos são limpos.
-4. **Given** "Esqueci a senha", **When** o responsável responde corretamente uma multiplicação
+4. **Given** "Esqueci a senha", **When** o responsável responde corretamente uma soma
    gerada aleatoriamente e cria e confirma uma nova senha, **Then** a nova senha passa a valer e a
    antiga deixa de valer; **When** responde errado, **Then** uma nova conta é gerada e a senha não
    muda.
@@ -478,9 +484,9 @@ verificando cenário, frase, efeito e avanço em cada uma.
 - **FR-031**: Após o botão, a aplicação MUST pedir a senha de 4 dígitos num teclado numérico
   próprio da aplicação. Senha correta abre o painel; senha errada mostra mensagem de erro, vibra
   o aparelho quando houver suporte e limpa os dígitos.
-- **FR-032**: "Esqueci a senha" MUST apresentar uma multiplicação gerada aleatoriamente de um
-  número de dois dígitos por um de um dígito (fatores de 12 a 19 e de 3 a 9); resposta correta
-  permite criar e confirmar uma nova senha, resposta errada gera nova conta. Nenhum dado pessoal é
+- **FR-032**: "Esqueci a senha" MUST apresentar uma soma gerada aleatoriamente de dois números
+  sorteados de 20 a 49, inclusive (por exemplo, 37 + 48); resposta correta permite criar e
+  confirmar uma nova senha, resposta errada gera nova conta. Nenhum dado pessoal é
   pedido ou usado.
 - **FR-033**: Voltar da área dos adultos MUST levar à tela coerente com o estado: configuração
   inicial (se não concluída), mundo da criança (se há tempo), encerramento (se o tempo acabou ou
@@ -598,7 +604,7 @@ relógio e armazenamento controlados) ou pelo checklist de aceitação; não há
 - **SC-007**: Em 100% dos testes, o bloqueio persiste após recarga no mesmo dia, nenhuma ação na
   área do adulto concede tempo extra, e a tela é liberada automaticamente na virada do dia.
 - **SC-008**: O acesso adulto só abre após 3 segundos contínuos de pressão e senha correta; a
-  recuperação por multiplicação troca a senha sem usar dado pessoal.
+  recuperação por soma troca a senha sem usar dado pessoal.
 - **SC-009**: Os valores da aba Registro (7 barras, média, dias com uso nos últimos 7 dias, total, 30 dias) coincidem
   com os valores esperados para um histórico de teste conhecido, e dias com mais de 30 dias não
   existem no armazenamento.
@@ -637,7 +643,7 @@ relógio e armazenamento controlados) ou pelo checklist de aceitação; não há
 - **Períodos sem tela** (SHOULD do Princípio III) ficam fora desta feature.
 - **Faixa etária**: não é coletada, pois a aplicação já é destinada a 2–5 anos (minimização).
 - **Senha**: não há bloqueio por tentativas erradas; a senha protege contra a criança, não contra
-  um adulto, e a recuperação por multiplicação já está disponível.
+  um adulto, e a recuperação por soma já está disponível.
 - **Média diária**: divide sempre por 7, contando dias sem uso como zero.
 - **Formato do arquivo exportado** e o mecanismo de funcionamento offline são decididos no plano,
   respeitando a stack da Constituição.

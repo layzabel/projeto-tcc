@@ -101,23 +101,23 @@ describe('Recovery (FR-032, SC-008)', () => {
     click('Confirmar');
   };
 
-  it('mostra uma multiplicação e nenhum dado pessoal é pedido', () => {
+  it('mostra uma soma e nenhum dado pessoal é pedido', () => {
     setup();
-    expect(screen.getByText('Quanto é 12 × 3?')).toBeInTheDocument();
+    expect(screen.getByText('Quanto é 20 + 20?')).toBeInTheDocument();
     expect(screen.getAllByRole('textbox')).toHaveLength(1);
   });
 
   it('resposta errada gera nova conta e não muda a senha', () => {
     const { stored } = setup();
-    answer('35');
+    answer('39');
     expect(screen.getByRole('alert')).toHaveTextContent(/errad/i);
-    expect(screen.getByText('Quanto é 16 × 6?')).toBeInTheDocument();
+    expect(screen.getByText('Quanto é 35 + 35?')).toBeInTheDocument();
     expect(stored()?.hash).toBe(HASH);
   });
 
   it('resposta certa permite criar e confirmar a nova senha, e a antiga deixa de valer', async () => {
     const { stored, onDone } = setup();
-    answer('36');
+    answer('40');
     await typePin('5678');
     await typePin('5678');
     expect(makeCredential).toHaveBeenCalledWith('5678');

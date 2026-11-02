@@ -202,14 +202,14 @@ etapas, ausência de contagem, bloqueio após recarga e liberação à meia-noit
 ## Phase 6: User Story 4 — Acesso protegido à área dos adultos (Priority: P2)
 
 **Goal**: segurar o botão por 3 s, digitar a senha no teclado próprio e entrar no painel;
-recuperação por multiplicação; voltar leva à tela coerente com o estado.
+recuperação por soma; voltar leva à tela coerente com o estado.
 
 **Independent Test**: em mundo, encerramento e bloqueio, segurar por menos e por mais de 3 s, testar
 senhas certas e erradas e a recuperação, verificando o destino de cada caminho.
 
 ### Testes da User Story 4
 
-- [X] T075 [P] [US4] Escrever tests/unit/app/domain/recovery.test.ts: `newChallenge(random)` com `a ∈ 12..19` e `b ∈ 3..9` (FR-032), `checkAnswer(challenge, resposta)`; distribuição cobre todos os fatores com fonte injetada
+- [X] T075 [P] [US4] Escrever tests/unit/app/domain/recovery.test.ts: `newChallenge(random)` com `a ∈ 20..49` e `b ∈ 20..49` (FR-032), `checkAnswer(challenge, resposta)` aceitando só `a + b`; distribuição cobre todas as parcelas com fonte injetada
 - [X] T076 [P] [US4] Escrever tests/unit/app/ui/adult/AdultAccess.test.tsx: `PinEntry` com senha certa abre `painel(hoje)`; errada mostra "Senha incorreta", chama `vibrate` quando suportado (e não falha sem suporte) e limpa os dígitos; "Esqueci a senha" abre `Recovery`; resposta errada gera nova conta e não muda a senha; certa permite criar e confirmar nova senha, e a antiga deixa de valer; nenhum dado pessoal pedido
 - [X] T077 [P] [US4] Escrever tests/e2e/acesso-adulto.spec.ts (US4, SC-008): soltar antes de 3 s → nada; 3 s → teclado; senha errada → mensagem e dígitos limpos; certa → painel e contagem pausada (tempo não avança com `runFor`); recuperação com sorteio fixado; voltar a partir de mundo, encerramento (recomeça do início) e bloqueio leva à tela coerente (FR-033)
 
@@ -217,7 +217,7 @@ senhas certas e erradas e a recuperação, verificando o destino de cada caminho
 
 - [X] T078 [P] [US4] Implementar src/domain/recovery.ts (`newChallenge`, `checkAnswer`) (faz T075 passar)
 - [X] T079 [P] [US4] Implementar src/platform/vibration.ts (`vibrate(ms)` que só chama `navigator.vibrate` quando existir)
-- [X] T080 [US4] Implementar src/ui/adult/PinEntry.tsx (PinPad + `verifyCredential`, erro com `role="alert"`, vibração, botão "Esqueci a senha", voltar) e src/ui/adult/Recovery.tsx (conta `a × b`, campo numérico, nova senha + confirmação com PinPad, grava nova credencial com sal novo) (faz T076 passar; depende de T043, T045, T078, T079)
+- [X] T080 [US4] Implementar src/ui/adult/PinEntry.tsx (PinPad + `verifyCredential`, erro com `role="alert"`, vibração, botão "Esqueci a senha", voltar) e src/ui/adult/Recovery.tsx (conta `a + b`, campo numérico, nova senha + confirmação com PinPad, grava nova credencial com sal novo) (faz T076 passar; depende de T043, T045, T078, T079)
 - [X] T081 [US4] Criar a casca src/ui/adult/Panel.tsx: diálogo com três abas (`Hoje`, `Ajustes`, `Registro`) por `role="tablist"`, `SBP_RECOMMENDATION` visível em todas (FR-034), botão voltar que fecha a sobreposição, aviso persistente "Não foi possível salvar os dados neste aparelho" quando `saveFailed`; conteúdo das abas preenchido nas US5/US6
 - [X] T082 [US4] Ligar a sobreposição em src/ui/App.tsx: `HoldButton.onComplete` → `adultOverlay = 'senha'`; senha correta → painel; enquanto aberta, `shouldCount` recebe `overlayOpen = true` (pausa — FR-012); fechar reavalia `deriveScreen` (FR-033) e, sobre `encerramento`, remonta o `Closure` para recomeçar do início (FR-028) (faz T077 passar; depende de T080, T081)
 

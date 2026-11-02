@@ -36,7 +36,7 @@
 - Menções a SonarQube, `metricas-ia.md` e ao comando único (FR-054, SC-014) são exigência do
   contexto do projeto e da Constituição, não escolha de implementação da aplicação.
 - Valores definidos por suposição (documentados em Assumptions): limiares do céu, vaga-lumes e
-  humor; teto de 5 s por intervalo; faixa da multiplicação de recuperação; média ÷ 7; ausência de
+  humor; teto de 5 s por intervalo; faixa da soma de recuperação; média ÷ 7; ausência de
   bloqueio por tentativas de senha. Podem ser revistos em `/speckit-clarify`.
 - Conflitos aparentes com a Constituição resolvidos em Assumptions: sequência de dias só no
   painel do adulto (Princípio IV) e bloqueio sem liberação manual (Princípio III).

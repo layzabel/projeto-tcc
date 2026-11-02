@@ -65,7 +65,7 @@ test.describe('acesso à área dos adultos (US4, SC-008)', () => {
     expect(await segundosUsados(page)).toBe(antes);
   });
 
-  test('recuperação por multiplicação troca a senha', async ({
+  test('recuperação por soma troca a senha', async ({
     page,
     relogio,
     comDocumento,
@@ -77,16 +77,16 @@ test.describe('acesso à área dos adultos (US4, SC-008)', () => {
     await page.goto('/');
     await segurar(page, 3100);
     await page.getByRole('button', { name: 'Esqueci a senha' }).click();
-    const conta = page.getByText(/Quanto é \d{2} × \d\?/);
+    const conta = page.getByText(/Quanto é \d{2} \+ \d{2}\?/);
     await expect(conta).toBeVisible();
-    const [, a, b] = /(\d{2}) × (\d)/.exec((await conta.textContent()) ?? '')!;
-    await page.getByLabel(/Resultado/).fill(String(Number(a) * Number(b) + 1));
+    const [, a, b] = /(\d{2}) \+ (\d{2})/.exec((await conta.textContent()) ?? '')!;
+    await page.getByLabel(/Resultado/).fill(String(Number(a) + Number(b) + 1));
     await page.getByRole('button', { name: 'Confirmar' }).click();
     await expect(alerta(page)).toContainText(/errad/i);
     const credAntes = (await lerDocumento(page))?.credential;
 
-    const [, c, d] = /(\d{2}) × (\d)/.exec((await conta.textContent()) ?? '')!;
-    await page.getByLabel(/Resultado/).fill(String(Number(c) * Number(d)));
+    const [, c, d] = /(\d{2}) \+ (\d{2})/.exec((await conta.textContent()) ?? '')!;
+    await page.getByLabel(/Resultado/).fill(String(Number(c) + Number(d)));
     await page.getByRole('button', { name: 'Confirmar' }).click();
     await digitarSenha(page, '8642');
     await digitarSenha(page, '8642');

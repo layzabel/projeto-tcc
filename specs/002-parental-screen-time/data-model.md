@@ -170,7 +170,7 @@ média (uma casa decimal na média).
 | `game` | Os 6 brinquedos (`id`, `cor: 'azul' \| 'vermelho'`, `guardado`), seleção atual, progresso 0..6. |
 | `story` | Página atual 1..6, efeito da página já disparado. |
 | `closureRun` | Etapa atual e o `AbortController` da execução (R7). |
-| `recovery` | Fatores `a ∈ 12..19`, `b ∈ 3..9` da conta atual (FR-032). |
+| `recovery` | Parcelas `a ∈ 20..49` e `b ∈ 20..49` da soma atual (FR-032). |
 | `msAccumulator` | Fração de segundo ainda não transferida para `usedSeconds` (R4). |
 
 ## Conteúdo fixo (não é dado pessoal)

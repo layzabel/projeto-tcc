@@ -1,6 +1,6 @@
 'use client';
 
-// "Esqueci a senha": uma multiplicação gerada aleatoriamente; resposta certa permite criar uma
+// "Esqueci a senha": uma soma de dois números sorteados; resposta certa permite criar uma
 // nova senha (com sal novo), resposta errada gera outra conta (FR-032).
 
 import { useState } from 'react';
@@ -61,7 +61,7 @@ export function Recovery({ store, onDone, onBack, makeCredential = createCredent
             </p>
           )}
           <p id="conta-pergunta" className="destaque">
-            Quanto é {challenge.a} × {challenge.b}?
+            Quanto é {challenge.a} + {challenge.b}?
           </p>
           <div className="campo">
             <label htmlFor="conta">Resultado da conta</label>

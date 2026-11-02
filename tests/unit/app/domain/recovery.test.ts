@@ -1,40 +1,42 @@
 import { describe, expect, it } from 'vitest';
-import { checkAnswer, newChallenge } from '@/domain/recovery';
+import { checkAnswer, newChallenge, RECOVERY_MAX, RECOVERY_MIN } from '@/domain/recovery';
 import { random, sequenceSource } from '@/platform/random';
 
-describe('recuperação por multiplicação (FR-032)', () => {
-  it('fatores de 12 a 19 e de 3 a 9', () => {
-    expect(newChallenge(sequenceSource([0, 0]))).toEqual({ a: 12, b: 3 });
-    expect(newChallenge(sequenceSource([0.9999, 0.9999]))).toEqual({ a: 19, b: 9 });
+const ALL = Array.from({ length: 30 }, (_, i) => 20 + i);
+
+describe('recuperação por soma (FR-032)', () => {
+  it('parcelas de 20 a 49, inclusive', () => {
+    expect([RECOVERY_MIN, RECOVERY_MAX]).toEqual([20, 49]);
+    expect(newChallenge(sequenceSource([0, 0]))).toEqual({ a: 20, b: 20 });
+    expect(newChallenge(sequenceSource([0.9999, 0.9999]))).toEqual({ a: 49, b: 49 });
   });
 
-  it('a distribuição cobre todos os fatores', () => {
-    const steps = Array.from({ length: 8 }, (_, i) => (i + 0.5) / 8);
-    const as = new Set(steps.map((v) => newChallenge(sequenceSource([v, 0])).a));
-    const bs = new Set(
-      Array.from({ length: 7 }, (_, i) => newChallenge(sequenceSource([0, (i + 0.5) / 7])).b),
-    );
-    expect([...as].sort((x, y) => x - y)).toEqual([12, 13, 14, 15, 16, 17, 18, 19]);
-    expect([...bs].sort((x, y) => x - y)).toEqual([3, 4, 5, 6, 7, 8, 9]);
+  it('a distribuição cobre todas as parcelas nas duas posições', () => {
+    const middles = ALL.map((_, i) => (i + 0.5) / 30);
+    const as = new Set(middles.map((v) => newChallenge(sequenceSource([v, 0])).a));
+    const bs = new Set(middles.map((v) => newChallenge(sequenceSource([0, v])).b));
+    expect([...as].sort((x, y) => x - y)).toEqual(ALL);
+    expect([...bs].sort((x, y) => x - y)).toEqual(ALL);
   });
 
-  it('com a fonte real os fatores ficam nas faixas', () => {
-    for (let i = 0; i < 100; i += 1) {
+  it('com a fonte real as parcelas ficam na faixa', () => {
+    for (let i = 0; i < 200; i += 1) {
       const { a, b } = newChallenge(random);
-      expect(a).toBeGreaterThanOrEqual(12);
-      expect(a).toBeLessThanOrEqual(19);
-      expect(b).toBeGreaterThanOrEqual(3);
-      expect(b).toBeLessThanOrEqual(9);
+      for (const v of [a, b]) {
+        expect(v).toBeGreaterThanOrEqual(20);
+        expect(v).toBeLessThanOrEqual(49);
+      }
     }
   });
 
-  it('checkAnswer aceita só o produto exato', () => {
-    const challenge = { a: 14, b: 6 };
-    expect(checkAnswer(challenge, '84')).toBe(true);
-    expect(checkAnswer(challenge, ' 84 ')).toBe(true);
-    expect(checkAnswer(challenge, '85')).toBe(false);
-    expect(checkAnswer(challenge, '84.0')).toBe(false);
+  it('checkAnswer aceita só a soma exata', () => {
+    const challenge = { a: 37, b: 48 };
+    expect(checkAnswer(challenge, '85')).toBe(true);
+    expect(checkAnswer(challenge, ' 85 ')).toBe(true);
+    expect(checkAnswer(challenge, '86')).toBe(false);
+    expect(checkAnswer(challenge, String(37 * 48))).toBe(false);
+    expect(checkAnswer(challenge, '85.0')).toBe(false);
     expect(checkAnswer(challenge, '')).toBe(false);
-    expect(checkAnswer(challenge, 'oitenta')).toBe(false);
+    expect(checkAnswer(challenge, 'oitenta e cinco')).toBe(false);
   });
 });
