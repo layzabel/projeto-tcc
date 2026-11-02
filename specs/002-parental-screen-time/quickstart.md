@@ -99,7 +99,7 @@ posterior com `npm run metrics:ia -- --etapa <etapa> --sessao <id>`, e o consoli
 ## Critério de conclusão
 
 - [x] `npm run verify` → `VERIFY OK: 5/5 etapas`.
-- [ ] Quality Gate do SonarQube aprovado nos dois escopos; snapshot em `metricas-ia.md`.
+- [x] Quality Gate do SonarQube aprovado nos dois escopos; snapshot em `metricas-ia.md`.
 - [ ] Fixture `semRedeExterna` sem apontamentos e Cenário 6 conferido.
 - [x] `toque.spec.ts` aprovado (≥ 64×64 px, 8 px, em 320/390/1280).
 - [x] `acessibilidade.spec.ts` aprovado.

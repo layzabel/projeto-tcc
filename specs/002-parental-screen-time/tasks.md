@@ -328,7 +328,7 @@ avanço.
 - [X] T114 Revisar src/ inteiro contra FR-050 e o Princípio IV: sem links externos, compras, anúncios, pontos, sequências, reprodução automática infinita ou convites a continuar; nenhuma animação com período < 1 s ou alternância de brilho; nenhum `Math.random`; nenhuma URL externa
 - [X] T115 Rodar `npm run verify` até `VERIFY OK: 5/5 etapas` (tipos, padrões, testes com cobertura, build, e2e) e conferir cobertura ≥ 80% nas linhas novas de src/ (SHOULD)
 - [ ] T116 Executar os Cenários 4, 5 e 6 de [quickstart.md](quickstart.md) (uso manual no celular, offline e instalação, privacidade no DevTools com a verificação de vozes locais) e registrar as observações em docs/metricas/observacoes.md
-- [ ] T117 Rodar `npm run sonar -- --etapa implement` com o SonarQube local da 001 e confirmar o Quality Gate `TCC` aprovado nos escopos `app` e `scripts` (bugs 0, vulnerabilidades 0, hotspots revisados 100%, duplicação ≤ 3%, ciclomática ≤ 10, cognitiva ≤ 15, manutenibilidade A, sem Blocker/Critical); o snapshot é anexado a specs/002-parental-screen-time/metricas-ia.md (Princípio VI)
+- [X] T117 Rodar `npm run sonar -- --etapa implement` com o SonarQube local da 001 e confirmar o Quality Gate `TCC` aprovado nos escopos `app` e `scripts` (bugs 0, vulnerabilidades 0, hotspots revisados 100%, duplicação ≤ 3%, ciclomática ≤ 10, cognitiva ≤ 15, manutenibilidade A, sem Blocker/Critical); o snapshot é anexado a specs/002-parental-screen-time/metricas-ia.md (Princípio VI)
 - [X] T119 Marcar o critério de conclusão de [quickstart.md](quickstart.md) item a item, exceto o item de métricas de IA em `metricas-ia.md`, que é marcado ao fim da T118 (Phase 12)
 
 ---
